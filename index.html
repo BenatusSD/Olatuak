@@ -144,7 +144,8 @@ const T = {
     wind:'Viento', tide:'Marea', water:'Agua', hRow:'Altura', pRow:'Periodo', wRow:'Viento', total:'Total',
     hReason:['muy pequeño','pequeño','tamaño ideal','grande','muy grande'],
     pReason:['corto','medio','largo'],
-    wReason:['fuerte','moderado','flojo','offshore'],
+    wReason:['fuerte','moderado','flojo','offshore','sin datos, cuenta como moderado'],
+    noWind:'El viento no está disponible ahora mismo; el semáforo lo cuenta como moderado.',
     excFlat:'Menos de 0,4 m de swell: rojo directamente, el mar está plano.',
     excBig:'Más de 3,5 m de swell: rojo directamente, demasiado grande.',
     rising:'Subiendo', falling:'Bajando',
@@ -171,7 +172,8 @@ const T = {
     wind:'Haizea', tide:'Marea', water:'Ura', hRow:'Altuera', pRow:'Periodoa', wRow:'Haizea', total:'Guztira',
     hReason:['oso txikia','txikia','tamaina aproposa','handia','oso handia'],
     pReason:['laburra','ertaina','luzea'],
-    wReason:['indartsua','ertaina','ahula','lehorrekoa'],
+    wReason:['indartsua','ertaina','ahula','lehorrekoa','daturik ez, ertaintzat hartuta'],
+    noWind:'Haizearen daturik ez dago orain; semaforoak ertaintzat hartzen du.',
     excFlat:'0,4 m baino swell txikiagoa: gorria zuzenean, itsasoa laua dago.',
     excBig:'3,5 m baino swell handiagoa: gorria zuzenean, handiegia.',
     rising:'Igotzen', falling:'Jaisten',
@@ -245,15 +247,18 @@ function score(x){
   const level = total <= 1 ? 0 : total <= 3 ? 1 : total === 4 ? 2 : 3;
   const hr = x.h < 0.5 ? 0 : x.h < 0.8 ? 1 : x.h <= 2 ? 2 : x.h <= 3 ? 3 : 4;
   const pr = x.p < 7 ? 0 : x.p <= 10 ? 1 : 2;
-  const wr = x.ws == null ? 1 : x.ws > 25 ? 0 : off ? 3 : x.ws < 12 ? 2 : 1;
+  const wr = x.ws == null ? 4 : x.ws > 25 ? 0 : off ? 3 : x.ws < 12 ? 2 : 1;
   return { level, hp, pp, wp, total, off, hr, pr, wr };
 }
 
 /* ---------- Datos ---------- */
-async function getJSON(url){
-  const r = await fetch(url);
-  if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + new URL(url).host);
-  return r.json();
+async function getJSON(url, tries = 3){
+  for (let k = 1; ; k++){
+    const r = await fetch(url);
+    if (r.ok) return r.json();
+    if (r.status >= 500 && k < tries){ await new Promise(res => setTimeout(res, 1500 * k)); continue; }
+    throw new Error('HTTP ' + r.status + ' ' + new URL(url).host);
+  }
 }
 const at = (arr, j) => (arr && arr[j] != null) ? arr[j] : null;
 async function fetchHours(b){
@@ -265,18 +270,21 @@ async function fetchHours(b){
     if (m.hourly && m.hourly.wave_height && m.hourly.wave_height.some(v => v != null)) break;
     lat = Math.round((lat + 0.04) * 1000) / 1000;
   }
-  const [w, extra] = await Promise.all([
+  const extra = await Promise.allSettled([
     getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${b.lat}&longitude=${b.lon}&hourly=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=${tz}&forecast_days=2`),
-    Promise.allSettled([ getJSON(marine(lat, 'sea_surface_temperature')), getJSON(marine(lat, 'sea_level_height_msl')) ])
+    getJSON(marine(lat, 'sea_surface_temperature')),
+    getJSON(marine(lat, 'sea_level_height_msl'))
   ]);
+  const w = (extra[0].status === 'fulfilled' && extra[0].value.hourly) ? extra[0].value : null;
+  if (!w) console.warn('Olatuak: viento no disponible', extra[0].reason);
   const opt = (res, key) => {
     if (res.status !== 'fulfilled' || !res.value.hourly || !res.value.hourly[key]) return null;
     const h = res.value.hourly;
     return new Map(h.time.map((t, j) => [t, h[key][j]]));
   };
-  const sst = opt(extra[0], 'sea_surface_temperature');
-  const tide = opt(extra[1], 'sea_level_height_msl');
-  const wi = new Map(w.hourly.time.map((t, j) => [t, j]));
+  const sst = opt(extra[1], 'sea_surface_temperature');
+  const tide = opt(extra[2], 'sea_level_height_msl');
+  const wi = w ? new Map(w.hourly.time.map((t, j) => [t, j])) : new Map();
   const H = m.hourly;
   return H.time.map((t, j) => {
     const k = wi.get(t);
@@ -405,6 +413,7 @@ function render(){
     const bestTxt = bestLvl > 0 ? t.best(bestT) : t.none;
 
     let banner = '';
+    if (d.source === 'live' && hours.every(x => x.ws == null)) banner = `<div class="banner"><span>${t.noWind}</span><button type="button" data-action="retry">${t.retry}</button></div>`;
     const why = d.err ? ` <small>(${d.err.replace(/[<>&]/g, '')})</small>` : '';
     if (d.source === 'demo') banner = `<div class="banner"><span>${t.demo}${why}</span><button type="button" data-action="retry">${t.retry}</button></div>`;
     if (d.source === 'cached') banner = `<div class="banner"><span>${t.cached(clock(d.at))}${why}</span><button type="button" data-action="retry">${t.retry}</button></div>`;
