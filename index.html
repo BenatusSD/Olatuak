@@ -156,7 +156,7 @@ const T = {
     cached:t=>`Sin conexión. Datos guardados (${t}).`,
     demo:'Datos de ejemplo: esta vista no puede conectar con Open-Meteo.',
     retry:'Reintentar',
-    footer:'Datos: Open-Meteo (CC BY 4.0). Es una referencia orientativa y no sustituye las indicaciones de los socorristas.',
+    footer:'Datos: Open-Meteo y DWD (CC BY 4.0). Es una referencia orientativa y no sustituye las indicaciones de los socorristas.',
     dirFrom:['del norte','del noreste','del este','del sureste','del sur','del suroeste','del oeste','del noroeste'],
     abbr:['N','NE','E','SE','S','SO','O','NO'],
     swellSentence:(d,h,p)=>`Swell ${d}: ${h} m cada ${p} s.`,
@@ -183,7 +183,7 @@ const T = {
     cached:t=>`Konexiorik gabe. Gordetako datuak (${t}).`,
     demo:'Adibideko datuak: ikuspegi honek ezin du Open-Meteorekin konektatu.',
     retry:'Berriro saiatu',
-    footer:'Datuak: Open-Meteo (CC BY 4.0). Erreferentzia orientagarria da, eta ez ditu sorosleen argibideak ordezkatzen.',
+    footer:'Datuak: Open-Meteo eta DWD (CC BY 4.0). Erreferentzia orientagarria da, eta ez ditu sorosleen argibideak ordezkatzen.',
     dirFrom:['iparretik','ipar-ekialdetik','ekialdetik','hego-ekialdetik','hegotik','hego-mendebaldetik','mendebaldetik','ipar-mendebaldetik'],
     abbr:['I','IE','E','HE','H','HM','M','IM'],
     swellSentence:(d,h,p)=>`Swell-a ${d}: ${h} m, ${p} s-ko periodoa.`,
@@ -252,7 +252,7 @@ function score(x){
 /* ---------- Datos ---------- */
 async function getJSON(url){
   const r = await fetch(url);
-  if (!r.ok) throw new Error('HTTP ' + r.status);
+  if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + new URL(url).host);
   return r.json();
 }
 const at = (arr, j) => (arr && arr[j] != null) ? arr[j] : null;
@@ -322,8 +322,10 @@ async function load(id){
     data[id] = { hours, source:'live', at:when };
     store.set('cache:' + id, { hours, at:when });
   } catch (e) {
+    console.error('Olatuak:', e);
+    const err = String((e && (e.name + ': ' + e.message)) || e);
     const c = store.get('cache:' + id, null);
-    data[id] = c ? { hours:c.hours, source:'cached', at:c.at } : { hours:demoHours(id), source:'demo', at:new Date().toISOString() };
+    data[id] = c ? { hours:c.hours, source:'cached', at:c.at, err } : { hours:demoHours(id), source:'demo', at:new Date().toISOString(), err };
   }
   render();
 }
@@ -403,8 +405,9 @@ function render(){
     const bestTxt = bestLvl > 0 ? t.best(bestT) : t.none;
 
     let banner = '';
-    if (d.source === 'demo') banner = `<div class="banner"><span>${t.demo}</span><button type="button" data-action="retry">${t.retry}</button></div>`;
-    if (d.source === 'cached') banner = `<div class="banner"><span>${t.cached(clock(d.at))}</span><button type="button" data-action="retry">${t.retry}</button></div>`;
+    const why = d.err ? ` <small>(${d.err.replace(/[<>&]/g, '')})</small>` : '';
+    if (d.source === 'demo') banner = `<div class="banner"><span>${t.demo}${why}</span><button type="button" data-action="retry">${t.retry}</button></div>`;
+    if (d.source === 'cached') banner = `<div class="banner"><span>${t.cached(clock(d.at))}${why}</span><button type="button" data-action="retry">${t.retry}</button></div>`;
 
     body = `
       ${banner}
