@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Olatuak</title>
+<meta name="theme-color" content="#0E1B26">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#EAF0F4; --surface:#FFFFFF; --line:#D3DEE6; --text:#0E1B26; --muted:#4A6070;
+  --accent:#E8C48A; --on-accent:#0E1B26; --focus:#1F6FB2; --chip-on:#0E1B26; --chip-on-text:#FFFFFF;
+  --red:#D9443C; --orange:#E57A2E; --yellow:#D9B53A; --green:#2FA572; --empty:#C5D2DC;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#0E1B26; --surface:#16293A; --line:#22394D; --text:#EAF1F5; --muted:#9DB2C2;
+    --focus:#E8C48A; --chip-on:#EAF1F5; --chip-on-text:#0E1B26;
+    --red:#E5534B; --orange:#F0883E; --yellow:#E5C54A; --green:#4CC38A; --empty:#2C4458;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#0E1B26; --surface:#16293A; --line:#22394D; --text:#EAF1F5; --muted:#9DB2C2;
+  --focus:#E8C48A; --chip-on:#EAF1F5; --chip-on-text:#0E1B26;
+  --red:#E5534B; --orange:#F0883E; --yellow:#E5C54A; --green:#4CC38A; --empty:#2C4458;
+}
+html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
+*,*::before,*::after{ box-sizing: border-box; }
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family: Manrope, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+button{ font: inherit; color: inherit; }
+:focus-visible{ outline: 3px solid var(--focus); outline-offset: 2px; }
+.sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+.app{ max-width: 480px; margin: 0 auto; padding: 20px 20px 32px; display:flex; flex-direction:column; gap:18px; }
+
+.top{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.title h1{ margin:0; font-size:34px; line-height:1.1; font-weight:800; letter-spacing:-0.5px; }
+.title p{ margin:4px 0 0; font-size:14px; color:var(--muted); }
+.tools{ display:flex; gap:8px; align-items:center; flex-shrink:0; }
+.seg{ display:flex; border:1px solid var(--line); border-radius:24px; overflow:hidden; background:var(--surface); }
+.seg button{ min-width:46px; min-height:46px; border:0; background:transparent; color:var(--muted); font-weight:700; font-size:14px; cursor:pointer; }
+.seg button[aria-pressed="true"]{ background:var(--chip-on); color:var(--chip-on-text); }
+.star{ width:48px; height:48px; border-radius:24px; border:1px solid var(--line); background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; }
+
+.card{ background:var(--surface); border:1px solid var(--line); border-radius:24px; padding:22px; display:flex; flex-direction:column; gap:16px; }
+.hero-row{ display:flex; align-items:center; gap:18px; }
+.light{ width:76px; height:76px; border-radius:50%; flex-shrink:0; }
+.kicker{ font-size:14px; font-weight:600; color:var(--muted); }
+.level{ font-size:30px; font-weight:800; line-height:1.1; }
+.summary{ margin:0; font-size:16px; line-height:1.5; }
+
+details{ border-top:1px solid var(--line); padding-top:6px; }
+summary{ list-style:none; cursor:pointer; min-height:44px; display:flex; align-items:center; justify-content:space-between; font-weight:700; font-size:15px; }
+summary::-webkit-details-marker{ display:none; }
+summary svg{ transition: transform .2s ease; }
+details[open] summary svg{ transform: rotate(180deg); }
+.rows{ display:flex; flex-direction:column; gap:10px; padding:6px 0 4px; }
+.row{ display:grid; grid-template-columns: 74px minmax(0,1fr) auto; gap:10px; align-items:baseline; font-size:15px; }
+.row .k{ color:var(--muted); }
+.row .pts{ font-weight:800; font-variant-numeric: tabular-nums; }
+.row.total{ border-top:1px dashed var(--line); padding-top:10px; font-weight:700; }
+.exc{ margin:6px 0 4px; font-size:15px; line-height:1.5; }
+
+.grid{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
+.tile{ background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:4px; }
+.tile span:first-child{ font-size:13px; color:var(--muted); }
+.tile span:last-child{ font-size:24px; font-weight:800; }
+
+.bars{ display:grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap:8px; align-items:end; }
+.bar-col{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+.bar{ width:100%; max-width:34px; border-radius:8px; }
+.bar-col span{ font-size:13px; color:var(--muted); font-variant-numeric: tabular-nums; }
+.note{ margin:0; font-size:14px; color:var(--muted); line-height:1.45; }
+
+.cam{ display:flex; align-items:center; justify-content:center; gap:10px; min-height:52px; border-radius:26px; background:var(--accent); color:var(--on-accent); font-size:17px; font-weight:700; text-decoration:none; }
+
+.favs h2{ margin:0 0 12px; font-size:15px; font-weight:700; color:var(--muted); }
+.chips{ display:flex; flex-wrap:wrap; gap:10px; }
+.chip{ display:flex; align-items:center; gap:10px; min-height:48px; padding:0 18px 0 14px; border-radius:24px; background:var(--surface); border:1px solid var(--line); font-size:16px; font-weight:600; cursor:pointer; }
+.chip[aria-current="true"]{ background:var(--chip-on); color:var(--chip-on-text); border-color:var(--chip-on); }
+.chip.add{ background:transparent; border-style:dashed; padding:0 18px; }
+.dot{ width:14px; height:14px; border-radius:7px; flex-shrink:0; box-shadow: inset 0 0 0 1px rgba(0,0,0,.18); }
+
+.banner{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:14px 16px; border-radius:16px; border:1px dashed var(--line); font-size:14px; line-height:1.45; color:var(--muted); }
+.banner button{ min-height:44px; padding:0 16px; border-radius:22px; border:1px solid var(--line); background:var(--surface); font-weight:700; cursor:pointer; }
+
+footer{ font-size:13px; color:var(--muted); line-height:1.5; }
+footer a{ color:inherit; }
+
+dialog{ border:1px solid var(--line); border-radius:24px; background:var(--surface); color:var(--text); padding:22px; width:min(420px, calc(100% - 32px)); }
+dialog::backdrop{ background: rgba(6,14,20,.55); }
+dialog h2{ margin:0 0 12px; font-size:20px; }
+.opt{ display:flex; align-items:center; gap:12px; min-height:48px; font-size:16px; font-weight:600; cursor:pointer; }
+.opt input{ width:22px; height:22px; accent-color: var(--green); }
+.opt small{ color:var(--muted); font-weight:500; }
+.done{ margin-top:14px; width:100%; min-height:48px; border-radius:24px; border:0; background:var(--accent); color:var(--on-accent); font-weight:700; font-size:16px; cursor:pointer; }
+
+@media (prefers-reduced-motion: reduce){ summary svg{ transition:none; } }
+</style>
+</head>
+<body>
+<main class="app" id="app" aria-live="polite"></main>
+
+<dialog id="picker" aria-labelledby="picker-title">
+  <h2 id="picker-title"></h2>
+  <div id="picker-list"></div>
+  <button class="done" id="picker-done" type="button"></button>
+</dialog>
+
+<script>
+/* ---------- Configuración de playas ----------
+   lat/lon: punto en el mar frente a la playa (Open-Meteo necesita mar, no tierra).
+   cam: enlace a la webcam de la playa (vacío = no se muestra el botón). */
+const BEACHES = [
+  { id:'zarautz',  name:{es:'Zarautz',  eu:'Zarautz'},  region:'Gipuzkoa', lat:43.300, lon:-2.170, cam:'' },
+  { id:'zurriola', name:{es:'Zurriola', eu:'Zurriola'}, region:'Gipuzkoa', lat:43.340, lon:-1.974, cam:'' },
+  { id:'hendaia',  name:{es:'Hendaya',  eu:'Hendaia'},  region:'Lapurdi',  lat:43.390, lon:-1.775, cam:'' },
+  { id:'sopela',   name:{es:'Sopela',   eu:'Sopela'},   region:'Bizkaia',  lat:43.400, lon:-3.000, cam:'' },
+  { id:'mundaka',  name:{es:'Mundaka',  eu:'Mundaka'},  region:'Bizkaia',  lat:43.430, lon:-2.700, cam:'' },
+  { id:'bakio',    name:{es:'Bakio',    eu:'Bakio'},    region:'Bizkaia',  lat:43.440, lon:-2.810, cam:'' },
+  { id:'biarritz', name:{es:'Biarritz', eu:'Miarritze'},region:'Lapurdi',  lat:43.500, lon:-1.580, cam:'' }
+];
+
+/* ---------- Textos ---------- */
+const T = {
+  es: {
+    surfNow:'Surf ahora', levels:['Malo','Flojo','Aceptable','Bueno'], flat:'Plato', big:'Demasiado grande',
+    why:'¿Por qué este color?', height:'Altura del swell', period:'Periodo', swellDir:'Dirección del swell',
+    wind:'Viento', tide:'Marea', water:'Agua', hRow:'Altura', pRow:'Periodo', wRow:'Viento', total:'Total',
+    hReason:['muy pequeño','pequeño','tamaño ideal','grande','muy grande'],
+    pReason:['corto','medio','largo'],
+    wReason:['fuerte','moderado','flojo','offshore'],
+    excFlat:'Menos de 0,4 m de swell: rojo directamente, el mar está plano.',
+    excBig:'Más de 3,5 m de swell: rojo directamente, demasiado grande.',
+    rising:'Subiendo', falling:'Bajando',
+    next:'Próximas horas', best:h=>`Mejor hora: ${h}.`, none:'Nada aprovechable en las próximas horas.',
+    barsNote:'Cuanto más alta la barra, mejor.',
+    cam:'Ver cámara', favs:'Favoritas', add:'Añadir playa', fav:'Añadir a favoritas', unfav:'Quitar de favoritas',
+    choose:'Elige tus playas', done:'Hecho', loading:'Cargando datos…',
+    updated:t=>`Actualizado: ${t}`,
+    cached:t=>`Sin conexión. Datos guardados (${t}).`,
+    demo:'Datos de ejemplo: esta vista no puede conectar con Open-Meteo.',
+    retry:'Reintentar',
+    footer:'Datos: Open-Meteo (CC BY 4.0). Es una referencia orientativa y no sustituye las indicaciones de los socorristas.',
+    dirFrom:['del norte','del noreste','del este','del sureste','del sur','del suroeste','del oeste','del noroeste'],
+    abbr:['N','NE','E','SE','S','SO','O','NO'],
+    swellSentence:(d,h,p)=>`Swell ${d}: ${h} m cada ${p} s.`,
+    windSentence:(f,d,off)=>`Viento ${f} ${d}${off?', offshore':''}.`,
+    force:['flojo','moderado','fuerte'],
+    noData:'Sin datos de oleaje para esta hora.',
+    langLabel:'Idioma'
+  },
+  eu: {
+    surfNow:'Surfa orain', levels:['Txarra','Ahula','Onargarria','Ona'], flat:'Itsasoa laua', big:'Handiegia',
+    why:'Zergatik kolore hau?', height:'Swell-aren altuera', period:'Periodoa', swellDir:'Swell-aren norabidea',
+    wind:'Haizea', tide:'Marea', water:'Ura', hRow:'Altuera', pRow:'Periodoa', wRow:'Haizea', total:'Guztira',
+    hReason:['oso txikia','txikia','tamaina aproposa','handia','oso handia'],
+    pReason:['laburra','ertaina','luzea'],
+    wReason:['indartsua','ertaina','ahula','lehorrekoa'],
+    excFlat:'0,4 m baino swell txikiagoa: gorria zuzenean, itsasoa laua dago.',
+    excBig:'3,5 m baino swell handiagoa: gorria zuzenean, handiegia.',
+    rising:'Igotzen', falling:'Jaisten',
+    next:'Hurrengo orduak', best:h=>`Ordurik onena: ${h}.`, none:'Ez dago ezer aprobetxagarririk hurrengo orduetan.',
+    barsNote:'Zenbat eta barra altuagoa, orduan eta hobeto.',
+    cam:'Kamera ikusi', favs:'Gogokoak', add:'Hondartza gehitu', fav:'Gogokoetara gehitu', unfav:'Gogokoetatik kendu',
+    choose:'Aukeratu zure hondartzak', done:'Eginda', loading:'Datuak kargatzen…',
+    updated:t=>`Eguneratua: ${t}`,
+    cached:t=>`Konexiorik gabe. Gordetako datuak (${t}).`,
+    demo:'Adibideko datuak: ikuspegi honek ezin du Open-Meteorekin konektatu.',
+    retry:'Berriro saiatu',
+    footer:'Datuak: Open-Meteo (CC BY 4.0). Erreferentzia orientagarria da, eta ez ditu sorosleen argibideak ordezkatzen.',
+    dirFrom:['iparretik','ipar-ekialdetik','ekialdetik','hego-ekialdetik','hegotik','hego-mendebaldetik','mendebaldetik','ipar-mendebaldetik'],
+    abbr:['I','IE','E','HE','H','HM','M','IM'],
+    swellSentence:(d,h,p)=>`Swell-a ${d}: ${h} m, ${p} s-ko periodoa.`,
+    windSentence:(f,d,off)=>`Haize ${f} ${d}${off?', lehorrekoa':''}.`,
+    force:['ahula','ertaina','indartsua'],
+    noData:'Ez dago olatu-daturik ordu honetarako.',
+    langLabel:'Hizkuntza'
+  }
+};
+
+/* ---------- Estado ---------- */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+function detectLang(){
+  const ls = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'es'];
+  for (const l of ls){
+    const c = String(l).toLowerCase();
+    if (c.startsWith('eu')) return 'eu';
+    if (c.startsWith('es')) return 'es';
+  }
+  return 'es';
+}
+const byId = id => BEACHES.find(b => b.id === id);
+let lang = store.get('lang', null) || detectLang();
+let favs = store.get('favs', ['zarautz','zurriola','hendaia']).filter(byId);
+if (!favs.length) favs = ['zarautz'];
+let sel = store.get('sel', favs[0]);
+if (!byId(sel)) sel = favs[0];
+const data = {};
+
+/* ---------- Utilidades ---------- */
+const TZ = 'Europe/Madrid';
+function nowKey(){
+  const p = {};
+  new Intl.DateTimeFormat('en-GB', { timeZone:TZ, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', hourCycle:'h23' })
+    .formatToParts(new Date()).forEach(x => p[x.type] = x.value);
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:00`;
+}
+function clock(iso){
+  return new Intl.DateTimeFormat('es-ES', { timeZone:TZ, hour:'2-digit', minute:'2-digit' }).format(new Date(iso));
+}
+const fmt = (n, d) => (n == null || isNaN(n)) ? '—' : Number(n).toLocaleString('es-ES', { minimumFractionDigits:d, maximumFractionDigits:d });
+const dirIdx = deg => Math.round(((deg % 360) + 360) % 360 / 45) % 8;
+const COLORS = ['var(--red)','var(--orange)','var(--yellow)','var(--green)'];
+const BAR_H = [14, 26, 38, 50];
+
+/* ---------- Cálculo del semáforo ---------- */
+function score(x){
+  if (!x || x.h == null || x.p == null) return null;
+  if (x.h < 0.4) return { level:0, exc:'flat' };
+  if (x.h > 3.5) return { level:0, exc:'big' };
+  const hp = x.h < 0.5 ? 0 : x.h < 0.8 ? 1 : x.h <= 2 ? 2 : x.h <= 3 ? 1 : 0;
+  const pp = x.p < 7 ? 0 : x.p <= 10 ? 1 : 2;
+  const off = x.wd != null && x.wd >= 135 && x.wd <= 225;
+  const wp = x.ws == null ? 1 : x.ws > 25 ? 0 : (off || x.ws < 12) ? 2 : 1;
+  const total = hp + pp + wp;
+  const level = total <= 1 ? 0 : total <= 3 ? 1 : total === 4 ? 2 : 3;
+  const hr = x.h < 0.5 ? 0 : x.h < 0.8 ? 1 : x.h <= 2 ? 2 : x.h <= 3 ? 3 : 4;
+  const pr = x.p < 7 ? 0 : x.p <= 10 ? 1 : 2;
+  const wr = x.ws == null ? 1 : x.ws > 25 ? 0 : off ? 3 : x.ws < 12 ? 2 : 1;
+  return { level, hp, pp, wp, total, off, hr, pr, wr };
+}
+
+/* ---------- Datos ---------- */
+async function getJSON(url){
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+const at = (arr, j) => (arr && arr[j] != null) ? arr[j] : null;
+async function fetchHours(b){
+  const tz = encodeURIComponent(TZ);
+  const marine = (lat, vars) => `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${b.lon}&hourly=${vars}&timezone=${tz}&forecast_days=2`;
+  let lat = b.lat, m = null;
+  for (let k = 0; k < 3; k++){
+    m = await getJSON(marine(lat, 'wave_height,wave_period,wave_direction,swell_wave_height,swell_wave_period,swell_wave_direction'));
+    if (m.hourly && m.hourly.wave_height && m.hourly.wave_height.some(v => v != null)) break;
+    lat = Math.round((lat + 0.04) * 1000) / 1000;
+  }
+  const [w, extra] = await Promise.all([
+    getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${b.lat}&longitude=${b.lon}&hourly=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=${tz}&forecast_days=2`),
+    Promise.allSettled([ getJSON(marine(lat, 'sea_surface_temperature')), getJSON(marine(lat, 'sea_level_height_msl')) ])
+  ]);
+  const opt = (res, key) => {
+    if (res.status !== 'fulfilled' || !res.value.hourly || !res.value.hourly[key]) return null;
+    const h = res.value.hourly;
+    return new Map(h.time.map((t, j) => [t, h[key][j]]));
+  };
+  const sst = opt(extra[0], 'sea_surface_temperature');
+  const tide = opt(extra[1], 'sea_level_height_msl');
+  const wi = new Map(w.hourly.time.map((t, j) => [t, j]));
+  const H = m.hourly;
+  return H.time.map((t, j) => {
+    const k = wi.get(t);
+    return {
+      t,
+      h: at(H.swell_wave_height, j) ?? at(H.wave_height, j),
+      p: at(H.swell_wave_period, j) ?? at(H.wave_period, j),
+      d: at(H.swell_wave_direction, j) ?? at(H.wave_direction, j),
+      ws: k == null ? null : at(w.hourly.wind_speed_10m, k),
+      wd: k == null ? null : at(w.hourly.wind_direction_10m, k),
+      sst: sst ? (sst.get(t) ?? null) : null,
+      tide: tide ? (tide.get(t) ?? null) : null
+    };
+  });
+}
+function demoHours(id){
+  const day = nowKey().slice(0, 10);
+  const d2 = new Date(day + 'T12:00:00Z'); d2.setUTCDate(d2.getUTCDate() + 1);
+  const next = d2.toISOString().slice(0, 10);
+  const s = id.length;
+  const out = [];
+  for (let j = 0; j < 48; j++){
+    const hr = j % 24;
+    out.push({
+      t: `${j < 24 ? day : next}T${String(hr).padStart(2,'0')}:00`,
+      h: Math.round((1.1 + 0.6 * Math.sin((j + s) / 7)) * 10) / 10,
+      p: Math.round(10 + 2.5 * Math.sin((j + s) / 9)),
+      d: 315,
+      ws: Math.round(6 + 14 * Math.max(0, Math.sin((hr - 11) / 4))),
+      wd: hr < 12 ? 185 : 320,
+      sst: 16,
+      tide: Math.sin(2 * Math.PI * (j + s) / 12.4)
+    });
+  }
+  return out;
+}
+async function load(id){
+  data[id] = { loading:true };
+  render();
+  try {
+    const hours = await fetchHours(byId(id));
+    const when = new Date().toISOString();
+    data[id] = { hours, source:'live', at:when };
+    store.set('cache:' + id, { hours, at:when });
+  } catch (e) {
+    const c = store.get('cache:' + id, null);
+    data[id] = c ? { hours:c.hours, source:'cached', at:c.at } : { hours:demoHours(id), source:'demo', at:new Date().toISOString() };
+  }
+  render();
+}
+function idxNow(hours){
+  const k = nowKey();
+  let i = hours.findIndex(h => h.t === k);
+  if (i < 0){ i = hours.findIndex(h => h.t > k); if (i < 0) i = hours.length - 1; }
+  return i;
+}
+
+/* ---------- Iconos ---------- */
+const ICON_STAR = on => `<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.9z" fill="${on ? 'var(--accent)' : 'none'}" stroke="${on ? 'var(--accent)' : 'var(--muted)'}" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+const ICON_CHEV = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
+const ICON_CAM = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg>`;
+const ICON_PLUS = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`;
+
+/* ---------- Render ---------- */
+function levelFor(id){
+  const d = data[id];
+  if (!d || !d.hours) return null;
+  return score(d.hours[idxNow(d.hours)]);
+}
+function render(){
+  const t = T[lang];
+  const b = byId(sel);
+  const name = b.name[lang];
+  document.documentElement.lang = lang;
+  document.title = `${name} · Olatuak`;
+  const isFav = favs.includes(sel);
+  const d = data[sel];
+
+  let body = '';
+  if (!d || d.loading){
+    body = `<section class="card"><p class="summary">${t.loading}</p></section>`;
+  } else {
+    const hours = d.hours, i = idxNow(hours), cur = hours[i], s = score(cur);
+    const color = s ? COLORS[s.level] : 'var(--empty)';
+    const label = !s ? '—' : s.exc === 'flat' ? t.flat : s.exc === 'big' ? t.big : t.levels[s.level];
+
+    let summary = t.noData;
+    if (cur && cur.h != null){
+      summary = t.swellSentence(cur.d != null ? t.dirFrom[dirIdx(cur.d)] : '', fmt(cur.h, 1), fmt(cur.p, 0));
+      if (cur.ws != null){
+        const f = cur.ws < 12 ? 0 : cur.ws <= 25 ? 1 : 2;
+        const off = cur.wd != null && cur.wd >= 135 && cur.wd <= 225;
+        summary += ' ' + t.windSentence(t.force[f], cur.wd != null ? t.dirFrom[dirIdx(cur.wd)] : '', off && cur.ws <= 25);
+      }
+    }
+
+    let breakdown = '';
+    if (s && s.exc){
+      breakdown = `<p class="exc">${s.exc === 'flat' ? t.excFlat : t.excBig}</p>`;
+    } else if (s){
+      breakdown = `<div class="rows">
+        <div class="row"><span class="k">${t.hRow}</span><span>${fmt(cur.h,1)} m · ${t.hReason[s.hr]}</span><span class="pts">${s.hp}/2</span></div>
+        <div class="row"><span class="k">${t.pRow}</span><span>${fmt(cur.p,0)} s · ${t.pReason[s.pr]}</span><span class="pts">${s.pp}/2</span></div>
+        <div class="row"><span class="k">${t.wRow}</span><span>${cur.ws != null ? fmt(cur.ws,0) + ' km/h ' + (cur.wd != null ? t.abbr[dirIdx(cur.wd)] : '') : '—'} · ${t.wReason[s.wr]}</span><span class="pts">${s.wp}/2</span></div>
+        <div class="row total"><span class="k">${t.total}</span><span>${label}</span><span class="pts">${s.total}/6</span></div>
+      </div>`;
+    }
+
+    let tideTxt = '—';
+    if (cur && cur.tide != null && hours[i + 1] && hours[i + 1].tide != null){
+      tideTxt = hours[i + 1].tide >= cur.tide ? t.rising : t.falling;
+    }
+
+    const steps = [];
+    for (let k = 0; k < 7; k++){ const x = hours[i + k * 2]; if (x) steps.push(x); }
+    let bestLvl = -1, bestT = null;
+    const bars = steps.map(x => {
+      const sc = score(x);
+      const lv = sc ? sc.level : -1;
+      if (lv > bestLvl){ bestLvl = lv; bestT = x.t.slice(11, 16); }
+      const txt = sc ? (sc.exc === 'flat' ? t.flat : sc.exc === 'big' ? t.big : t.levels[sc.level]) : '—';
+      return `<div class="bar-col"><div class="bar" style="height:${lv < 0 ? 6 : BAR_H[lv]}px;background:${lv < 0 ? 'var(--empty)' : COLORS[lv]}"></div><span>${x.t.slice(11,13)}<span class="sr"> h: ${txt}</span></span></div>`;
+    }).join('');
+    const bestTxt = bestLvl > 0 ? t.best(bestT) : t.none;
+
+    let banner = '';
+    if (d.source === 'demo') banner = `<div class="banner"><span>${t.demo}</span><button type="button" data-action="retry">${t.retry}</button></div>`;
+    if (d.source === 'cached') banner = `<div class="banner"><span>${t.cached(clock(d.at))}</span><button type="button" data-action="retry">${t.retry}</button></div>`;
+
+    body = `
+      ${banner}
+      <section class="card" aria-label="${t.surfNow}">
+        <div class="hero-row">
+          <div class="light" style="background:${color};box-shadow:0 0 0 6px color-mix(in srgb, ${color} 24%, transparent)"></div>
+          <div><div class="kicker">${t.surfNow}</div><div class="level">${label}</div></div>
+        </div>
+        <p class="summary">${summary}</p>
+        ${s ? `<details><summary>${t.why}${ICON_CHEV}</summary>${breakdown}</details>` : ''}
+      </section>
+      <section class="grid">
+        <div class="tile"><span>${t.height}</span><span>${fmt(cur && cur.h, 1)} m</span></div>
+        <div class="tile"><span>${t.period}</span><span>${fmt(cur && cur.p, 0)} s</span></div>
+        <div class="tile"><span>${t.swellDir}</span><span>${cur && cur.d != null ? t.abbr[dirIdx(cur.d)] : '—'}</span></div>
+        <div class="tile"><span>${t.wind}</span><span>${cur && cur.ws != null ? fmt(cur.ws,0) + ' km/h ' + (cur.wd != null ? t.abbr[dirIdx(cur.wd)] : '') : '—'}</span></div>
+        <div class="tile"><span>${t.tide}</span><span>${tideTxt}</span></div>
+        <div class="tile"><span>${t.water}</span><span>${cur && cur.sst != null ? fmt(cur.sst,0) + ' °C' : '—'}</span></div>
+      </section>
+      <section class="card">
+        <h2 class="kicker" style="margin:0">${t.next}</h2>
+        <div class="bars">${bars}</div>
+        <p class="note">${bestTxt} ${t.barsNote}</p>
+      </section>
+      ${b.cam ? `<a class="cam" href="${b.cam}" target="_blank" rel="noopener">${ICON_CAM}${t.cam}</a>` : ''}
+    `;
+  }
+
+  const chips = favs.map(id => {
+    const sc = levelFor(id);
+    const c = sc ? COLORS[sc.level] : 'var(--empty)';
+    return `<button type="button" class="chip" data-action="select" data-id="${id}" aria-current="${id === sel}"><span class="dot" style="background:${c}"></span>${byId(id).name[lang]}</button>`;
+  }).join('');
+
+  const upd = d && d.source === 'live' ? ` · ${t.updated(clock(d.at))}` : '';
+
+  document.getElementById('app').innerHTML = `
+    <header class="top">
+      <div class="title"><h1>${name}</h1><p>${b.region}${upd}</p></div>
+      <div class="tools">
+        <div class="seg" role="group" aria-label="${t.langLabel}">
+          <button type="button" data-action="lang" data-lang="es" aria-pressed="${lang === 'es'}">ES</button>
+          <button type="button" data-action="lang" data-lang="eu" aria-pressed="${lang === 'eu'}">EU</button>
+        </div>
+        <button type="button" class="star" data-action="star" aria-label="${isFav ? t.unfav : t.fav}" aria-pressed="${isFav}">${ICON_STAR(isFav)}</button>
+      </div>
+    </header>
+    ${body}
+    <section class="favs">
+      <h2>${t.favs}</h2>
+      <div class="chips">${chips}<button type="button" class="chip add" data-action="add">${ICON_PLUS}${t.add}</button></div>
+    </section>
+    <footer>${t.footer.replace('Open-Meteo', '<a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>')}</footer>
+  `;
+}
+
+/* ---------- Selector de playas ---------- */
+const picker = document.getElementById('picker');
+function openPicker(){
+  const t = T[lang];
+  document.getElementById('picker-title').textContent = t.choose;
+  document.getElementById('picker-done').textContent = t.done;
+  document.getElementById('picker-list').innerHTML = BEACHES.map(b => `
+    <label class="opt"><input type="checkbox" value="${b.id}" ${favs.includes(b.id) ? 'checked' : ''}>
+    <span>${b.name[lang]} <small>${b.region}</small></span></label>`).join('');
+  if (picker.showModal) picker.showModal(); else picker.setAttribute('open', '');
+}
+document.getElementById('picker-list').addEventListener('change', e => {
+  const cb = e.target;
+  if (cb.type !== 'checkbox') return;
+  if (cb.checked){ if (!favs.includes(cb.value)) favs.push(cb.value); }
+  else {
+    if (favs.length === 1){ cb.checked = true; return; }
+    favs = favs.filter(x => x !== cb.value);
+  }
+  favs.sort((a, b) => BEACHES.findIndex(x => x.id === a) - BEACHES.findIndex(x => x.id === b));
+  store.set('favs', favs);
+});
+document.getElementById('picker-done').addEventListener('click', () => {
+  if (picker.close) picker.close(); else picker.removeAttribute('open');
+  favs.forEach(id => { if (!data[id]) load(id); });
+  render();
+});
+
+/* ---------- Eventos ---------- */
+document.getElementById('app').addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const a = el.dataset.action;
+  if (a === 'lang'){ lang = el.dataset.lang; store.set('lang', lang); render(); }
+  if (a === 'star'){
+    if (favs.includes(sel)){ if (favs.length > 1) favs = favs.filter(x => x !== sel); }
+    else favs.push(sel);
+    store.set('favs', favs); render();
+  }
+  if (a === 'select'){ sel = el.dataset.id; store.set('sel', sel); if (!data[sel]) load(sel); else render(); }
+  if (a === 'add') openPicker();
+  if (a === 'retry') load(sel);
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  const d = data[sel];
+  if (d && d.at && Date.now() - new Date(d.at).getTime() > 30 * 60 * 1000) load(sel);
+});
+
+/* ---------- Arranque ---------- */
+render();
+[...new Set([sel, ...favs])].forEach(load);
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
