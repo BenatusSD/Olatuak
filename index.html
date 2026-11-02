@@ -17,6 +17,7 @@
   --bg:#EAF0F4; --surface:#FFFFFF; --line:#D3DEE6; --text:#0E1B26; --muted:#4A6070;
   --accent:#E8C48A; --on-accent:#0E1B26; --focus:#1F6FB2; --chip-on:#0E1B26; --chip-on-text:#FFFFFF;
   --red:#D9443C; --orange:#E57A2E; --yellow:#D9B53A; --green:#2FA572; --empty:#C5D2DC;
+  --sea:#D6E8F3; --sea-band:#B3D5EA; --coast:#C49A55;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -27,6 +28,7 @@
     --bg:#0E1B26; --surface:#16293A; --line:#22394D; --text:#EAF1F5; --muted:#9DB2C2;
     --focus:#E8C48A; --chip-on:#EAF1F5; --chip-on-text:#0E1B26;
     --red:#E5534B; --orange:#F0883E; --yellow:#E5C54A; --green:#4CC38A; --empty:#2C4458;
+    --sea:#173248; --sea-band:#1F4462; --coast:#E8C48A;
   }
 }
 :root[data-theme="dark"]{
@@ -34,35 +36,36 @@
   --bg:#0E1B26; --surface:#16293A; --line:#22394D; --text:#EAF1F5; --muted:#9DB2C2;
   --focus:#E8C48A; --chip-on:#EAF1F5; --chip-on-text:#0E1B26;
   --red:#E5534B; --orange:#F0883E; --yellow:#E5C54A; --green:#4CC38A; --empty:#2C4458;
+  --sea:#173248; --sea-band:#1F4462; --coast:#E8C48A;
 }
 html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
 *,*::before,*::after{ box-sizing: border-box; }
-body{
-  margin:0; background:var(--bg); color:var(--text);
-  font-family: Manrope, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
+body{ margin:0; background:var(--bg); color:var(--text); font-family: Manrope, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
 button{ font: inherit; color: inherit; }
 :focus-visible{ outline: 3px solid var(--focus); outline-offset: 2px; }
 .sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
-.app{ max-width: 480px; margin: 0 auto; padding: 20px 20px 32px; display:flex; flex-direction:column; gap:18px; }
+.app{ max-width: 480px; margin: 0 auto; padding: 16px 20px 32px; display:flex; flex-direction:column; gap:18px; }
 
-.top{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
-.title h1{ margin:0; font-size:34px; line-height:1.1; font-weight:800; letter-spacing:-0.5px; }
-.title p{ margin:4px 0 0; font-size:14px; color:var(--muted); }
-.tools{ display:flex; gap:8px; align-items:center; flex-shrink:0; }
+.bar1{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.views{ display:flex; gap:8px; }
+.iconbtn{ width:48px; height:48px; border-radius:14px; border:1px solid var(--line); background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; }
+.iconbtn[aria-pressed="true"]{ background:var(--chip-on); color:var(--chip-on-text); border-color:var(--chip-on); }
 .seg{ display:flex; border:1px solid var(--line); border-radius:24px; overflow:hidden; background:var(--surface); }
-.seg button{ min-width:46px; min-height:46px; border:0; background:transparent; color:var(--muted); font-weight:700; font-size:14px; cursor:pointer; }
+.seg button{ min-width:48px; min-height:46px; padding:0 12px; border:0; background:transparent; color:var(--muted); font-weight:700; font-size:14px; cursor:pointer; }
 .seg button[aria-pressed="true"]{ background:var(--chip-on); color:var(--chip-on-text); }
-.star{ width:48px; height:48px; border-radius:24px; border:1px solid var(--line); background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; }
+.bar2{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-top:10px; }
+.bar2 h1{ margin:0; font-size:34px; line-height:1.1; font-weight:800; letter-spacing:-0.5px; }
+.bar2 p{ margin:4px 0 0; font-size:14px; color:var(--muted); }
+.star{ width:48px; height:48px; border-radius:24px; border:1px solid var(--line); background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; flex-shrink:0; }
 
 .card{ background:var(--surface); border:1px solid var(--line); border-radius:24px; padding:22px; display:flex; flex-direction:column; gap:16px; }
 .hero-row{ display:flex; align-items:center; gap:18px; }
 .light{ width:76px; height:76px; border-radius:50%; flex-shrink:0; }
-.kicker{ font-size:14px; font-weight:600; color:var(--muted); }
+.kicker{ font-size:14px; font-weight:600; color:var(--muted); margin:0; }
 .level{ font-size:30px; font-weight:800; line-height:1.1; }
 .summary{ margin:0; font-size:16px; line-height:1.5; }
+.now{ margin-left:auto; min-height:44px; padding:0 18px; border-radius:22px; border:0; background:var(--chip-on); color:var(--chip-on-text); font-weight:700; font-size:15px; cursor:pointer; flex-shrink:0; }
 
 details{ border-top:1px solid var(--line); padding-top:6px; }
 summary{ list-style:none; cursor:pointer; min-height:44px; display:flex; align-items:center; justify-content:space-between; font-weight:700; font-size:15px; }
@@ -81,81 +84,99 @@ details[open] summary svg{ transform: rotate(180deg); }
 .tile span:first-child{ font-size:13px; color:var(--muted); }
 .tile span:last-child{ font-size:24px; font-weight:800; }
 
-.bars{ display:grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap:8px; align-items:end; }
-.bar-col{ display:flex; flex-direction:column; align-items:center; gap:8px; }
-.bar{ width:100%; max-width:34px; border-radius:8px; }
+.bars{ display:grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap:6px; align-items:end; }
+.bar-col{ display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:8px; min-height:80px; padding:6px 0; border:0; border-radius:12px; background:transparent; cursor:pointer; }
+.bar-col[aria-pressed="true"]{ background: color-mix(in srgb, var(--text) 10%, transparent); }
+.bar-col[aria-pressed="true"] span{ color:var(--text); font-weight:800; }
+.bar{ display:block; width:100%; max-width:34px; border-radius:8px; }
 .bar-col span{ font-size:13px; color:var(--muted); font-variant-numeric: tabular-nums; }
 .note{ margin:0; font-size:14px; color:var(--muted); line-height:1.45; }
 
 .cam{ display:flex; align-items:center; justify-content:center; gap:10px; min-height:52px; border-radius:26px; background:var(--accent); color:var(--on-accent); font-size:17px; font-weight:700; text-decoration:none; }
 
-.favs h2{ margin:0 0 12px; font-size:15px; font-weight:700; color:var(--muted); }
-.chips{ display:flex; flex-wrap:wrap; gap:10px; }
-.chip{ display:flex; align-items:center; gap:10px; min-height:48px; padding:0 18px 0 14px; border-radius:24px; background:var(--surface); border:1px solid var(--line); font-size:16px; font-weight:600; cursor:pointer; }
-.chip[aria-current="true"]{ background:var(--chip-on); color:var(--chip-on-text); border-color:var(--chip-on); }
-.chip.add{ background:transparent; border-style:dashed; padding:0 18px; }
+.filters{ display:flex; flex-wrap:wrap; gap:8px; }
+.fchip{ min-height:44px; padding:0 16px; border-radius:22px; border:1px solid var(--line); background:var(--surface); font-weight:600; font-size:14px; cursor:pointer; }
+.fchip[aria-pressed="true"]{ background:var(--chip-on); color:var(--chip-on-text); border-color:var(--chip-on); }
+.orderrow{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.orderrow span{ font-size:14px; font-weight:600; color:var(--muted); }
+.timebar{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 8px 8px 16px; border-radius:18px; background:var(--surface); border:1px solid var(--line); font-weight:700; font-size:15px; }
+
+.list{ display:flex; flex-direction:column; gap:10px; }
+.item{ display:flex; align-items:center; gap:14px; width:100%; text-align:left; padding:14px 16px; min-height:68px; border-radius:18px; border:1px solid var(--line); background:var(--surface); cursor:pointer; }
+.item-main{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+.item-name{ font-size:17px; font-weight:700; }
+.item-sub{ font-size:13px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.item-level{ font-size:14px; font-weight:700; flex-shrink:0; }
 .dot{ width:14px; height:14px; border-radius:7px; flex-shrink:0; box-shadow: inset 0 0 0 1px rgba(0,0,0,.18); }
+.dot.lg{ width:22px; height:22px; border-radius:11px; }
+.empty{ margin:0; padding:20px; border-radius:18px; border:1px dashed var(--line); font-size:15px; line-height:1.5; color:var(--muted); }
+
+.mapwrap{ overflow-x:auto; border-radius:22px; border:1px solid var(--line); background:var(--surface); -webkit-overflow-scrolling: touch; }
+.mapwrap svg{ display:block; }
+.mdot{ cursor:pointer; }
+.mdot:focus{ outline:none; }
+.mdot:focus-visible .ring{ stroke:var(--focus); stroke-width:3; opacity:1; }
+.mlabel{ font-family: Manrope, system-ui, sans-serif; font-size:13px; font-weight:600; fill:var(--text); }
+.mlabel.fav{ font-weight:800; }
+.mregion{ font-family: Manrope, system-ui, sans-serif; font-size:14px; font-weight:700; fill:var(--muted); }
 
 .banner{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:14px 16px; border-radius:16px; border:1px dashed var(--line); font-size:14px; line-height:1.45; color:var(--muted); }
 .banner button{ min-height:44px; padding:0 16px; border-radius:22px; border:1px solid var(--line); background:var(--surface); font-weight:700; cursor:pointer; }
-
 footer{ font-size:13px; color:var(--muted); line-height:1.5; }
 footer a{ color:inherit; }
-
-dialog{ border:1px solid var(--line); border-radius:24px; background:var(--surface); color:var(--text); padding:22px; width:min(420px, calc(100% - 32px)); }
-dialog::backdrop{ background: rgba(6,14,20,.55); }
-dialog h2{ margin:0 0 12px; font-size:20px; }
-.opt{ display:flex; align-items:center; gap:12px; min-height:48px; font-size:16px; font-weight:600; cursor:pointer; }
-.opt input{ width:22px; height:22px; accent-color: var(--green); }
-.opt small{ color:var(--muted); font-weight:500; }
-.done{ margin-top:14px; width:100%; min-height:48px; border-radius:24px; border:0; background:var(--accent); color:var(--on-accent); font-weight:700; font-size:16px; cursor:pointer; }
-
 @media (prefers-reduced-motion: reduce){ summary svg{ transition:none; } }
 </style>
 </head>
 <body>
-<main class="app" id="app" aria-live="polite"></main>
-
-<dialog id="picker" aria-labelledby="picker-title">
-  <h2 id="picker-title"></h2>
-  <div id="picker-list"></div>
-  <button class="done" id="picker-done" type="button"></button>
-</dialog>
+<main class="app" id="app"></main>
 
 <script>
-/* ---------- Configuración de playas ----------
-   lat/lon: punto en el mar frente a la playa (Open-Meteo necesita mar, no tierra).
-   cam: enlace a la webcam de la playa (vacío = no se muestra el botón). */
+/* ---------- Playas (oeste a este, luego norte por Lapurdi) ----------
+   lat/lon: punto en el mar frente a la playa (Open-Meteo necesita mar).
+   mx/my: posicion en el mapa esquematico.  cam: enlace a webcam ('' = sin boton). */
+const GK = 'https://www.gipuzkoa.eus/es/web/hondartzak/webcams/';
 const BEACHES = [
-  { id:'zarautz',  name:{es:'Zarautz',  eu:'Zarautz'},  region:'Gipuzkoa', lat:43.300, lon:-2.170, cam:'' },
-  { id:'zurriola', name:{es:'Zurriola', eu:'Zurriola'}, region:'Gipuzkoa', lat:43.340, lon:-1.974, cam:'' },
-  { id:'hendaia',  name:{es:'Hendaya',  eu:'Hendaia'},  region:'Lapurdi',  lat:43.390, lon:-1.775, cam:'' },
-  { id:'sopela',   name:{es:'Sopela',   eu:'Sopela'},   region:'Bizkaia',  lat:43.400, lon:-3.000, cam:'' },
-  { id:'mundaka',  name:{es:'Mundaka',  eu:'Mundaka'},  region:'Bizkaia',  lat:43.430, lon:-2.700, cam:'' },
-  { id:'bakio',    name:{es:'Bakio',    eu:'Bakio'},    region:'Bizkaia',  lat:43.440, lon:-2.810, cam:'' },
-  { id:'biarritz', name:{es:'Biarritz', eu:'Miarritze'},region:'Lapurdi',  lat:43.500, lon:-1.580, cam:'' }
+  { id:'arena',       name:{es:'La Arena', eu:'La Arena'},                 region:'Bizkaia',  lat:43.370, lon:-3.115, mx:75,   my:108, cam:'' },
+  { id:'sopela',      name:{es:'Sopela', eu:'Sopela'},                     region:'Bizkaia',  lat:43.400, lon:-3.000, mx:130,  my:100, cam:'' },
+  { id:'bakio',       name:{es:'Bakio', eu:'Bakio'},                       region:'Bizkaia',  lat:43.440, lon:-2.810, mx:250,  my:82,  cam:'' },
+  { id:'mundaka',     name:{es:'Mundaka', eu:'Mundaka'},                   region:'Bizkaia',  lat:43.430, lon:-2.700, mx:340,  my:122, cam:'' },
+  { id:'laga',        name:{es:'Laga', eu:'Laga'},                         region:'Bizkaia',  lat:43.430, lon:-2.650, mx:410,  my:96,  cam:'' },
+  { id:'saturraran',  name:{es:'Saturraran', eu:'Saturraran'},             region:'Gipuzkoa', lat:43.335, lon:-2.420, mx:560,  my:176, cam:GK+'saturraran' },
+  { id:'deba',        name:{es:'Deba', eu:'Deba'},                         region:'Gipuzkoa', lat:43.315, lon:-2.355, mx:620,  my:200, cam:GK+'deba' },
+  { id:'itzurun',     name:{es:'Itzurun', eu:'Itzurun'},                   region:'Gipuzkoa', lat:43.315, lon:-2.265, mx:690,  my:212, cam:'http://zumaia.eus/es/turismo/que-hacer/webcam?set_language=es' },
+  { id:'zarautz',     name:{es:'Zarautz', eu:'Zarautz'},                   region:'Gipuzkoa', lat:43.300, lon:-2.170, mx:760,  my:210, cam:GK+'zarautz' },
+  { id:'antilla',     name:{es:'Antilla', eu:'Antilla'},                   region:'Gipuzkoa', lat:43.300, lon:-2.135, mx:810,  my:204, cam:GK+'orio' },
+  { id:'zurriola',    name:{es:'Zurriola', eu:'Zurriola'},                 region:'Gipuzkoa', lat:43.340, lon:-1.974, mx:880,  my:182, cam:GK+'zurriola' },
+  { id:'hondarribia', name:{es:'Hondarribia', eu:'Hondarribia'},           region:'Gipuzkoa', lat:43.395, lon:-1.790, mx:945,  my:192, cam:GK+'hondarribia' },
+  { id:'hendaia',     name:{es:'Hendaya', eu:'Hendaia'},                   region:'Lapurdi',  lat:43.390, lon:-1.775, mx:975,  my:188, cam:'' },
+  { id:'donibane',    name:{es:'San Juan de Luz', eu:'Donibane Lohizune'}, region:'Lapurdi',  lat:43.405, lon:-1.670, mx:1045, my:130, cam:'' },
+  { id:'bidart',      name:{es:'Bidart', eu:'Bidarte'},                    region:'Lapurdi',  lat:43.440, lon:-1.610, mx:1066, my:95,  cam:'' },
+  { id:'biarritz',    name:{es:'Biarritz', eu:'Miarritze'},                region:'Lapurdi',  lat:43.500, lon:-1.580, mx:1080, my:60,  cam:'' },
+  { id:'angelu',      name:{es:'Anglet', eu:'Angelu'},                     region:'Lapurdi',  lat:43.510, lon:-1.545, mx:1090, my:20,  cam:'' }
 ];
+const REGIONS = ['Bizkaia','Gipuzkoa','Lapurdi'];
+const REGION_X = { Bizkaia:240, Gipuzkoa:720, Lapurdi:1010 };
 
 /* ---------- Textos ---------- */
 const T = {
   es: {
-    surfNow:'Surf ahora', levels:['Malo','Flojo','Aceptable','Bueno'], flat:'Plato', big:'Demasiado grande',
+    surfNow:'Surf ahora', surfAt:h=>`Surf a las ${h}`, now:'Ahora',
+    levels:['Malo','Flojo','Aceptable','Bueno'], flat:'Plato', big:'Demasiado grande',
     why:'¿Por qué este color?', height:'Altura del swell', period:'Periodo', swellDir:'Dirección del swell',
     wind:'Viento', tide:'Marea', water:'Agua', hRow:'Altura', pRow:'Periodo', wRow:'Viento', total:'Total',
     hReason:['muy pequeño','pequeño','tamaño ideal','grande','muy grande'],
     pReason:['corto','medio','largo'],
     wReason:['fuerte','moderado','flojo','offshore','sin datos, cuenta como moderado'],
-    noWind:'El viento no está disponible ahora mismo; el semáforo lo cuenta como moderado.',
     excFlat:'Menos de 0,4 m de swell: rojo directamente, el mar está plano.',
     excBig:'Más de 3,5 m de swell: rojo directamente, demasiado grande.',
     rising:'Subiendo', falling:'Bajando',
-    next:'Próximas horas', best:h=>`Mejor hora: ${h}.`, none:'Nada aprovechable en las próximas horas.',
-    barsNote:'Cuanto más alta la barra, mejor.',
-    cam:'Ver cámara', favs:'Favoritas', add:'Añadir playa', fav:'Añadir a favoritas', unfav:'Quitar de favoritas',
-    choose:'Elige tus playas', done:'Hecho', loading:'Cargando datos…',
-    updated:t=>`Actualizado: ${t}`,
+    next:'Próximas horas', bestHour:h=>`Mejor hora: ${h}.`, none:'Nada aprovechable en las próximas horas.',
+    barsNote:'Cuanto más alta la barra, mejor. Toca una barra para ver esa hora.',
+    cam:'Ver cámara', fav:'Añadir a favoritas', unfav:'Quitar de favoritas',
+    loading:'Cargando datos…', updated:t=>`Actualizado: ${t}`,
     cached:t=>`Sin conexión. Datos guardados (${t}).`,
     demo:'Datos de ejemplo: esta vista no puede conectar con Open-Meteo.',
+    noWind:'El viento no está disponible ahora mismo; el semáforo lo cuenta como moderado.',
     retry:'Reintentar',
     footer:'Datos: Open-Meteo y DWD (CC BY 4.0). Es una referencia orientativa y no sustituye las indicaciones de los socorristas.',
     dirFrom:['del norte','del noreste','del este','del sureste','del sur','del suroeste','del oeste','del noroeste'],
@@ -164,26 +185,30 @@ const T = {
     windSentence:(f,d,off)=>`Viento ${f} ${d}${off?', offshore':''}.`,
     force:['flojo','moderado','fuerte'],
     noData:'Sin datos de oleaje para esta hora.',
-    langLabel:'Idioma'
+    langLabel:'Idioma', viewList:'Ver lista', viewMap:'Ver mapa', beaches:'Playas', beachCount:n=>`${n} playas`,
+    all:'Todas', favs:'Favoritas', filterLabel:'Filtrar por zona', order:'Orden', coast:'Costa', best:'Mejores',
+    forTime:h=>`Condiciones a las ${h}`,
+    swipe:'Desliza para ver toda la costa. Toca un punto para abrir la playa.',
+    noFavs:'Aún no tienes favoritas. Abre una playa y toca la estrella.'
   },
   eu: {
-    surfNow:'Surfa orain', levels:['Txarra','Ahula','Onargarria','Ona'], flat:'Itsasoa laua', big:'Handiegia',
+    surfNow:'Surfa orain', surfAt:h=>`Surfa ${h}etan`, now:'Orain',
+    levels:['Txarra','Ahula','Onargarria','Ona'], flat:'Itsasoa laua', big:'Handiegia',
     why:'Zergatik kolore hau?', height:'Swell-aren altuera', period:'Periodoa', swellDir:'Swell-aren norabidea',
     wind:'Haizea', tide:'Marea', water:'Ura', hRow:'Altuera', pRow:'Periodoa', wRow:'Haizea', total:'Guztira',
     hReason:['oso txikia','txikia','tamaina aproposa','handia','oso handia'],
     pReason:['laburra','ertaina','luzea'],
     wReason:['indartsua','ertaina','ahula','lehorrekoa','daturik ez, ertaintzat hartuta'],
-    noWind:'Haizearen daturik ez dago orain; semaforoak ertaintzat hartzen du.',
     excFlat:'0,4 m baino swell txikiagoa: gorria zuzenean, itsasoa laua dago.',
     excBig:'3,5 m baino swell handiagoa: gorria zuzenean, handiegia.',
     rising:'Igotzen', falling:'Jaisten',
-    next:'Hurrengo orduak', best:h=>`Ordurik onena: ${h}.`, none:'Ez dago ezer aprobetxagarririk hurrengo orduetan.',
-    barsNote:'Zenbat eta barra altuagoa, orduan eta hobeto.',
-    cam:'Kamera ikusi', favs:'Gogokoak', add:'Hondartza gehitu', fav:'Gogokoetara gehitu', unfav:'Gogokoetatik kendu',
-    choose:'Aukeratu zure hondartzak', done:'Eginda', loading:'Datuak kargatzen…',
-    updated:t=>`Eguneratua: ${t}`,
+    next:'Hurrengo orduak', bestHour:h=>`Ordurik onena: ${h}.`, none:'Ez dago ezer aprobetxagarririk hurrengo orduetan.',
+    barsNote:'Zenbat eta barra altuagoa, orduan eta hobeto. Sakatu barra bat ordu hori ikusteko.',
+    cam:'Kamera ikusi', fav:'Gogokoetara gehitu', unfav:'Gogokoetatik kendu',
+    loading:'Datuak kargatzen…', updated:t=>`Eguneratua: ${t}`,
     cached:t=>`Konexiorik gabe. Gordetako datuak (${t}).`,
     demo:'Adibideko datuak: ikuspegi honek ezin du Open-Meteorekin konektatu.',
+    noWind:'Haizearen daturik ez dago orain; semaforoak ertaintzat hartzen du.',
     retry:'Berriro saiatu',
     footer:'Datuak: Open-Meteo eta DWD (CC BY 4.0). Erreferentzia orientagarria da, eta ez ditu sorosleen argibideak ordezkatzen.',
     dirFrom:['iparretik','ipar-ekialdetik','ekialdetik','hego-ekialdetik','hegotik','hego-mendebaldetik','mendebaldetik','ipar-mendebaldetik'],
@@ -192,7 +217,11 @@ const T = {
     windSentence:(f,d,off)=>`Haize ${f} ${d}${off?', lehorrekoa':''}.`,
     force:['ahula','ertaina','indartsua'],
     noData:'Ez dago olatu-daturik ordu honetarako.',
-    langLabel:'Hizkuntza'
+    langLabel:'Hizkuntza', viewList:'Zerrenda ikusi', viewMap:'Mapa ikusi', beaches:'Hondartzak', beachCount:n=>`${n} hondartza`,
+    all:'Denak', favs:'Gogokoak', filterLabel:'Eremuaren arabera iragazi', order:'Ordena', coast:'Kosta', best:'Onenak',
+    forTime:h=>`Baldintzak ${h}etan`,
+    swipe:'Irristatu kosta osoa ikusteko. Sakatu puntu bat hondartza irekitzeko.',
+    noFavs:'Oraindik ez duzu gogokorik. Ireki hondartza bat eta sakatu izarra.'
   }
 };
 
@@ -203,20 +232,23 @@ const store = {
 };
 function detectLang(){
   const ls = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || 'es'];
-  for (const l of ls){
-    const c = String(l).toLowerCase();
-    if (c.startsWith('eu')) return 'eu';
-    if (c.startsWith('es')) return 'es';
-  }
+  for (const l of ls){ const c = String(l).toLowerCase(); if (c.startsWith('eu')) return 'eu'; if (c.startsWith('es')) return 'es'; }
   return 'es';
 }
 const byId = id => BEACHES.find(b => b.id === id);
-let lang = store.get('lang', null) || detectLang();
-let favs = store.get('favs', ['zarautz','zurriola','hendaia']).filter(byId);
-if (!favs.length) favs = ['zarautz'];
-let sel = store.get('sel', favs[0]);
-if (!byId(sel)) sel = favs[0];
-const data = {};
+const S = {
+  lang: store.get('lang', null) || detectLang(),
+  favs: store.get('favs', ['zarautz','zurriola','hendaia']).filter(byId),
+  sel: store.get('sel', 'zarautz'),
+  view: 'beach',
+  filter: store.get('filter', 'all'),
+  order: store.get('order', 'coast'),
+  selT: null,
+  loading: true,
+  data: null,
+  pendingScroll: null
+};
+if (!byId(S.sel)) S.sel = 'zarautz';
 
 /* ---------- Utilidades ---------- */
 const TZ = 'Europe/Madrid';
@@ -226,19 +258,18 @@ function nowKey(){
     .formatToParts(new Date()).forEach(x => p[x.type] = x.value);
   return `${p.year}-${p.month}-${p.day}T${p.hour}:00`;
 }
-function clock(iso){
-  return new Intl.DateTimeFormat('es-ES', { timeZone:TZ, hour:'2-digit', minute:'2-digit' }).format(new Date(iso));
-}
+const clock = iso => new Intl.DateTimeFormat('es-ES', { timeZone:TZ, hour:'2-digit', minute:'2-digit' }).format(new Date(iso));
 const fmt = (n, d) => (n == null || isNaN(n)) ? '—' : Number(n).toLocaleString('es-ES', { minimumFractionDigits:d, maximumFractionDigits:d });
 const dirIdx = deg => Math.round(((deg % 360) + 360) % 360 / 45) % 8;
 const COLORS = ['var(--red)','var(--orange)','var(--yellow)','var(--green)'];
 const BAR_H = [14, 26, 38, 50];
+const at = (arr, j) => (arr && arr[j] != null) ? arr[j] : null;
 
-/* ---------- Cálculo del semáforo ---------- */
+/* ---------- Calculo del semaforo ---------- */
 function score(x){
   if (!x || x.h == null || x.p == null) return null;
-  if (x.h < 0.4) return { level:0, exc:'flat' };
-  if (x.h > 3.5) return { level:0, exc:'big' };
+  if (x.h < 0.4) return { level:0, exc:'flat', total:-1 };
+  if (x.h > 3.5) return { level:0, exc:'big', total:-1 };
   const hp = x.h < 0.5 ? 0 : x.h < 0.8 ? 1 : x.h <= 2 ? 2 : x.h <= 3 ? 1 : 0;
   const pp = x.p < 7 ? 0 : x.p <= 10 ? 1 : 2;
   const off = x.wd != null && x.wd >= 135 && x.wd <= 225;
@@ -250,8 +281,10 @@ function score(x){
   const wr = x.ws == null ? 4 : x.ws > 25 ? 0 : off ? 3 : x.ws < 12 ? 2 : 1;
   return { level, hp, pp, wp, total, off, hr, pr, wr };
 }
+const levelLabel = (s, t) => !s ? '—' : s.exc === 'flat' ? t.flat : s.exc === 'big' ? t.big : t.levels[s.level];
+const levelColor = s => s ? COLORS[s.level] : 'var(--empty)';
 
-/* ---------- Datos ---------- */
+/* ---------- Datos (una llamada para todas las playas) ---------- */
 async function getJSON(url, tries = 3){
   for (let k = 1; ; k++){
     const r = await fetch(url);
@@ -260,271 +293,374 @@ async function getJSON(url, tries = 3){
     throw new Error('HTTP ' + r.status + ' ' + new URL(url).host);
   }
 }
-const at = (arr, j) => (arr && arr[j] != null) ? arr[j] : null;
-async function fetchHours(b){
-  const tz = encodeURIComponent(TZ);
-  const marine = (lat, vars) => `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${b.lon}&hourly=${vars}&timezone=${tz}&forecast_days=2`;
-  let lat = b.lat, m = null;
-  for (let k = 0; k < 3; k++){
-    m = await getJSON(marine(lat, 'wave_height,wave_period,wave_direction,swell_wave_height,swell_wave_period,swell_wave_direction'));
-    if (m.hourly && m.hourly.wave_height && m.hourly.wave_height.some(v => v != null)) break;
-    lat = Math.round((lat + 0.04) * 1000) / 1000;
-  }
-  const extra = await Promise.allSettled([
-    getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${b.lat}&longitude=${b.lon}&hourly=wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=${tz}&forecast_days=2`),
-    getJSON(marine(lat, 'sea_surface_temperature')),
-    getJSON(marine(lat, 'sea_level_height_msl'))
-  ]);
-  const w = (extra[0].status === 'fulfilled' && extra[0].value.hourly) ? extra[0].value : null;
-  if (!w) console.warn('Olatuak: viento no disponible', extra[0].reason);
-  const opt = (res, key) => {
-    if (res.status !== 'fulfilled' || !res.value.hourly || !res.value.hourly[key]) return null;
-    const h = res.value.hourly;
-    return new Map(h.time.map((t, j) => [t, h[key][j]]));
-  };
-  const sst = opt(extra[1], 'sea_surface_temperature');
-  const tide = opt(extra[2], 'sea_level_height_msl');
-  const wi = w ? new Map(w.hourly.time.map((t, j) => [t, j])) : new Map();
-  const H = m.hourly;
-  return H.time.map((t, j) => {
-    const k = wi.get(t);
-    return {
-      t,
-      h: at(H.swell_wave_height, j) ?? at(H.wave_height, j),
-      p: at(H.swell_wave_period, j) ?? at(H.wave_period, j),
-      d: at(H.swell_wave_direction, j) ?? at(H.wave_direction, j),
-      ws: k == null ? null : at(w.hourly.wind_speed_10m, k),
-      wd: k == null ? null : at(w.hourly.wind_direction_10m, k),
-      sst: sst ? (sst.get(t) ?? null) : null,
-      tide: tide ? (tide.get(t) ?? null) : null
-    };
-  });
+const MARINE = 'https://marine-api.open-meteo.com/v1/marine';
+const FORECAST = 'https://api.open-meteo.com/v1/forecast';
+const MARINE_VARS = 'wave_height,wave_period,wave_direction,swell_wave_height,swell_wave_period,swell_wave_direction';
+async function batch(base, vars, list, latList){
+  const lat = (latList || list.map(b => b.lat)).join(',');
+  const lon = list.map(b => b.lon).join(',');
+  const extra = base === FORECAST ? '&wind_speed_unit=kmh' : '';
+  const j = await getJSON(`${base}?latitude=${lat}&longitude=${lon}&hourly=${vars}&timezone=${encodeURIComponent(TZ)}&forecast_days=2${extra}`);
+  return Array.isArray(j) ? j : [j];
 }
-function demoHours(id){
-  const day = nowKey().slice(0, 10);
-  const d2 = new Date(day + 'T12:00:00Z'); d2.setUTCDate(d2.getUTCDate() + 1);
-  const next = d2.toISOString().slice(0, 10);
-  const s = id.length;
-  const out = [];
-  for (let j = 0; j < 48; j++){
-    const hr = j % 24;
-    out.push({
-      t: `${j < 24 ? day : next}T${String(hr).padStart(2,'0')}:00`,
-      h: Math.round((1.1 + 0.6 * Math.sin((j + s) / 7)) * 10) / 10,
-      p: Math.round(10 + 2.5 * Math.sin((j + s) / 9)),
-      d: 315,
-      ws: Math.round(6 + 14 * Math.max(0, Math.sin((hr - 11) / 4))),
-      wd: hr < 12 ? 185 : 320,
-      sst: 16,
-      tide: Math.sin(2 * Math.PI * (j + s) / 12.4)
-    });
-  }
-  return out;
+const hasWaves = o => !!(o && o.hourly && o.hourly.wave_height && o.hourly.wave_height.some(v => v != null));
+function mapBy(h, key){ if (!h || !h[key] || !h.time) return null; return new Map(h.time.map((t, j) => [t, h[key][j]])); }
+function buildHours(H, W, SS, L){
+  if (!H || !H.time) return [];
+  const ws = mapBy(W,'wind_speed_10m'), wd = mapBy(W,'wind_direction_10m'), sst = mapBy(SS,'sea_surface_temperature'), tide = mapBy(L,'sea_level_height_msl');
+  const g = (m, t) => m ? (m.get(t) ?? null) : null;
+  return H.time.map((t, j) => ({
+    t,
+    h: at(H.swell_wave_height, j) ?? at(H.wave_height, j),
+    p: at(H.swell_wave_period, j) ?? at(H.wave_period, j),
+    d: at(H.swell_wave_direction, j) ?? at(H.wave_direction, j),
+    ws: g(ws, t), wd: g(wd, t), sst: g(sst, t), tide: g(tide, t)
+  }));
 }
-async function load(id){
-  data[id] = { loading:true };
-  render();
+async function loadAll(){
+  S.loading = true; render();
   try {
-    const hours = await fetchHours(byId(id));
+    const marine = await batch(MARINE, MARINE_VARS, BEACHES);
+    if (marine.length !== BEACHES.length) throw new Error('Respuesta inesperada de Open-Meteo');
+    const lat2 = BEACHES.map(b => b.lat);
+    for (let pass = 0; pass < 2; pass++){
+      const bad = BEACHES.map((b, k) => k).filter(k => !hasWaves(marine[k]));
+      if (!bad.length) break;
+      bad.forEach(k => lat2[k] = Math.round((lat2[k] + 0.04) * 1000) / 1000);
+      const r = await batch(MARINE, MARINE_VARS, bad.map(k => BEACHES[k]), bad.map(k => lat2[k]));
+      bad.forEach((k, n) => { if (hasWaves(r[n])) marine[k] = r[n]; });
+    }
+    const ex = await Promise.allSettled([
+      batch(FORECAST, 'wind_speed_10m,wind_direction_10m', BEACHES),
+      batch(MARINE, 'sea_surface_temperature', BEACHES, lat2),
+      batch(MARINE, 'sea_level_height_msl', BEACHES, lat2)
+    ]);
+    if (ex[0].status !== 'fulfilled') console.warn('Olatuak: viento no disponible', ex[0].reason);
+    const pick = (r, k) => (r.status === 'fulfilled' && r.value[k] && r.value[k].hourly) ? r.value[k].hourly : null;
+    const hours = {};
+    BEACHES.forEach((b, k) => { hours[b.id] = buildHours(marine[k] && marine[k].hourly, pick(ex[0], k), pick(ex[1], k), pick(ex[2], k)); });
     const when = new Date().toISOString();
-    data[id] = { hours, source:'live', at:when };
-    store.set('cache:' + id, { hours, at:when });
+    S.data = { hours, source:'live', at:when };
+    store.set('cache:all', { hours, at:when });
   } catch (e) {
     console.error('Olatuak:', e);
     const err = String((e && (e.name + ': ' + e.message)) || e);
-    const c = store.get('cache:' + id, null);
-    data[id] = c ? { hours:c.hours, source:'cached', at:c.at, err } : { hours:demoHours(id), source:'demo', at:new Date().toISOString(), err };
+    const c = store.get('cache:all', null);
+    S.data = c ? { hours:c.hours, source:'cached', at:c.at, err } : { hours:demoAll(), source:'demo', at:new Date().toISOString(), err };
   }
-  render();
+  S.loading = false; render();
+}
+function demoAll(){
+  const day = nowKey().slice(0, 10);
+  const d2 = new Date(day + 'T12:00:00Z'); d2.setUTCDate(d2.getUTCDate() + 1);
+  const next = d2.toISOString().slice(0, 10);
+  const out = {};
+  BEACHES.forEach((b, n) => {
+    const s = n * 3, arr = [];
+    for (let j = 0; j < 48; j++){
+      const hr = j % 24;
+      arr.push({
+        t: `${j < 24 ? day : next}T${String(hr).padStart(2,'0')}:00`,
+        h: Math.round((1.0 + 0.7 * Math.sin((j + s) / 7)) * 10) / 10,
+        p: Math.round(9.5 + 3 * Math.sin((j + s) / 9)),
+        d: 315, ws: Math.round(6 + 14 * Math.max(0, Math.sin((hr - 11 + n % 3) / 4))),
+        wd: hr < 12 ? 185 : 320, sst: 16, tide: Math.sin(2 * Math.PI * (j + s) / 12.4)
+      });
+    }
+    out[b.id] = arr;
+  });
+  return out;
 }
 function idxNow(hours){
+  if (!hours || !hours.length) return -1;
   const k = nowKey();
   let i = hours.findIndex(h => h.t === k);
   if (i < 0){ i = hours.findIndex(h => h.t > k); if (i < 0) i = hours.length - 1; }
   return i;
 }
+function idxFor(hours){
+  const i0 = idxNow(hours);
+  if (S.selT && hours){ const j = hours.findIndex(h => h.t === S.selT); if (j >= 0) return j; }
+  return i0;
+}
+const hoursOf = id => (S.data && S.data.hours && S.data.hours[id]) || [];
+const curOf = id => { const h = hoursOf(id); const i = idxFor(h); return i >= 0 ? h[i] : null; };
+const matchesFilter = b => S.filter === 'all' ? true : S.filter === 'fav' ? S.favs.includes(b.id) : b.region === S.filter;
 
 /* ---------- Iconos ---------- */
-const ICON_STAR = on => `<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.9z" fill="${on ? 'var(--accent)' : 'none'}" stroke="${on ? 'var(--accent)' : 'var(--muted)'}" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
-const ICON_CHEV = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
-const ICON_CAM = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg>`;
-const ICON_PLUS = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`;
+const I = {
+  star: on => `<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.9z" fill="${on ? 'var(--accent)' : 'none'}" stroke="${on ? 'var(--accent)' : 'var(--muted)'}" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
+  chev: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`,
+  cam: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg>`,
+  list: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2" fill="currentColor"/><circle cx="4.5" cy="12" r="1.2" fill="currentColor"/><circle cx="4.5" cy="18" r="1.2" fill="currentColor"/></svg>`,
+  map: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5l6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>`
+};
 
-/* ---------- Render ---------- */
-function levelFor(id){
-  const d = data[id];
-  if (!d || !d.hours) return null;
-  return score(d.hours[idxNow(d.hours)]);
+/* ---------- Render: comun ---------- */
+function banner(t){
+  const d = S.data;
+  if (!d) return '';
+  const why = d.err ? ` <small>(${d.err.replace(/[<>&]/g, '')})</small>` : '';
+  const btn = `<button type="button" data-action="retry">${t.retry}</button>`;
+  if (d.source === 'demo') return `<div class="banner"><span>${t.demo}${why}</span>${btn}</div>`;
+  if (d.source === 'cached') return `<div class="banner"><span>${t.cached(clock(d.at))}${why}</span>${btn}</div>`;
+  const anyWind = BEACHES.some(b => hoursOf(b.id).some(x => x.ws != null));
+  if (!anyWind) return `<div class="banner"><span>${t.noWind}</span>${btn}</div>`;
+  return '';
 }
-function render(){
-  const t = T[lang];
-  const b = byId(sel);
-  const name = b.name[lang];
-  document.documentElement.lang = lang;
-  document.title = `${name} · Olatuak`;
-  const isFav = favs.includes(sel);
-  const d = data[sel];
-
-  let body = '';
-  if (!d || d.loading){
-    body = `<section class="card"><p class="summary">${t.loading}</p></section>`;
+function header(t){
+  const upd = S.data && S.data.source === 'live' ? t.updated(clock(S.data.at)) : '';
+  let row2;
+  if (S.view === 'beach'){
+    const b = byId(S.sel), isFav = S.favs.includes(S.sel);
+    row2 = `<div><h1>${b.name[S.lang]}</h1><p>${b.region}${upd ? ' · ' + upd : ''}</p></div>
+      <button type="button" class="star" data-action="star" aria-label="${isFav ? t.unfav : t.fav}" aria-pressed="${isFav}">${I.star(isFav)}</button>`;
   } else {
-    const hours = d.hours, i = idxNow(hours), cur = hours[i], s = score(cur);
-    const color = s ? COLORS[s.level] : 'var(--empty)';
-    const label = !s ? '—' : s.exc === 'flat' ? t.flat : s.exc === 'big' ? t.big : t.levels[s.level];
-
-    let summary = t.noData;
-    if (cur && cur.h != null){
-      summary = t.swellSentence(cur.d != null ? t.dirFrom[dirIdx(cur.d)] : '', fmt(cur.h, 1), fmt(cur.p, 0));
-      if (cur.ws != null){
-        const f = cur.ws < 12 ? 0 : cur.ws <= 25 ? 1 : 2;
-        const off = cur.wd != null && cur.wd >= 135 && cur.wd <= 225;
-        summary += ' ' + t.windSentence(t.force[f], cur.wd != null ? t.dirFrom[dirIdx(cur.wd)] : '', off && cur.ws <= 25);
-      }
-    }
-
-    let breakdown = '';
-    if (s && s.exc){
-      breakdown = `<p class="exc">${s.exc === 'flat' ? t.excFlat : t.excBig}</p>`;
-    } else if (s){
-      breakdown = `<div class="rows">
-        <div class="row"><span class="k">${t.hRow}</span><span>${fmt(cur.h,1)} m · ${t.hReason[s.hr]}</span><span class="pts">${s.hp}/2</span></div>
-        <div class="row"><span class="k">${t.pRow}</span><span>${fmt(cur.p,0)} s · ${t.pReason[s.pr]}</span><span class="pts">${s.pp}/2</span></div>
-        <div class="row"><span class="k">${t.wRow}</span><span>${cur.ws != null ? fmt(cur.ws,0) + ' km/h ' + (cur.wd != null ? t.abbr[dirIdx(cur.wd)] : '') : '—'} · ${t.wReason[s.wr]}</span><span class="pts">${s.wp}/2</span></div>
-        <div class="row total"><span class="k">${t.total}</span><span>${label}</span><span class="pts">${s.total}/6</span></div>
-      </div>`;
-    }
-
-    let tideTxt = '—';
-    if (cur && cur.tide != null && hours[i + 1] && hours[i + 1].tide != null){
-      tideTxt = hours[i + 1].tide >= cur.tide ? t.rising : t.falling;
-    }
-
-    const steps = [];
-    for (let k = 0; k < 7; k++){ const x = hours[i + k * 2]; if (x) steps.push(x); }
-    let bestLvl = -1, bestT = null;
-    const bars = steps.map(x => {
-      const sc = score(x);
-      const lv = sc ? sc.level : -1;
-      if (lv > bestLvl){ bestLvl = lv; bestT = x.t.slice(11, 16); }
-      const txt = sc ? (sc.exc === 'flat' ? t.flat : sc.exc === 'big' ? t.big : t.levels[sc.level]) : '—';
-      return `<div class="bar-col"><div class="bar" style="height:${lv < 0 ? 6 : BAR_H[lv]}px;background:${lv < 0 ? 'var(--empty)' : COLORS[lv]}"></div><span>${x.t.slice(11,13)}<span class="sr"> h: ${txt}</span></span></div>`;
-    }).join('');
-    const bestTxt = bestLvl > 0 ? t.best(bestT) : t.none;
-
-    let banner = '';
-    if (d.source === 'live' && hours.every(x => x.ws == null)) banner = `<div class="banner"><span>${t.noWind}</span><button type="button" data-action="retry">${t.retry}</button></div>`;
-    const why = d.err ? ` <small>(${d.err.replace(/[<>&]/g, '')})</small>` : '';
-    if (d.source === 'demo') banner = `<div class="banner"><span>${t.demo}${why}</span><button type="button" data-action="retry">${t.retry}</button></div>`;
-    if (d.source === 'cached') banner = `<div class="banner"><span>${t.cached(clock(d.at))}${why}</span><button type="button" data-action="retry">${t.retry}</button></div>`;
-
-    body = `
-      ${banner}
-      <section class="card" aria-label="${t.surfNow}">
-        <div class="hero-row">
-          <div class="light" style="background:${color};box-shadow:0 0 0 6px color-mix(in srgb, ${color} 24%, transparent)"></div>
-          <div><div class="kicker">${t.surfNow}</div><div class="level">${label}</div></div>
-        </div>
-        <p class="summary">${summary}</p>
-        ${s ? `<details><summary>${t.why}${ICON_CHEV}</summary>${breakdown}</details>` : ''}
-      </section>
-      <section class="grid">
-        <div class="tile"><span>${t.height}</span><span>${fmt(cur && cur.h, 1)} m</span></div>
-        <div class="tile"><span>${t.period}</span><span>${fmt(cur && cur.p, 0)} s</span></div>
-        <div class="tile"><span>${t.swellDir}</span><span>${cur && cur.d != null ? t.abbr[dirIdx(cur.d)] : '—'}</span></div>
-        <div class="tile"><span>${t.wind}</span><span>${cur && cur.ws != null ? fmt(cur.ws,0) + ' km/h ' + (cur.wd != null ? t.abbr[dirIdx(cur.wd)] : '') : '—'}</span></div>
-        <div class="tile"><span>${t.tide}</span><span>${tideTxt}</span></div>
-        <div class="tile"><span>${t.water}</span><span>${cur && cur.sst != null ? fmt(cur.sst,0) + ' °C' : '—'}</span></div>
-      </section>
-      <section class="card">
-        <h2 class="kicker" style="margin:0">${t.next}</h2>
-        <div class="bars">${bars}</div>
-        <p class="note">${bestTxt} ${t.barsNote}</p>
-      </section>
-      ${b.cam ? `<a class="cam" href="${b.cam}" target="_blank" rel="noopener">${ICON_CAM}${t.cam}</a>` : ''}
-    `;
+    const n = BEACHES.filter(matchesFilter).length;
+    row2 = `<div><h1>${t.beaches}</h1><p>${t.beachCount(n)}${upd ? ' · ' + upd : ''}</p></div>`;
   }
+  return `<header>
+    <div class="bar1">
+      <div class="views">
+        <button type="button" class="iconbtn" data-action="view" data-view="list" aria-label="${t.viewList}" aria-pressed="${S.view === 'list'}">${I.list}</button>
+        <button type="button" class="iconbtn" data-action="view" data-view="map" aria-label="${t.viewMap}" aria-pressed="${S.view === 'map'}">${I.map}</button>
+      </div>
+      <div class="seg" role="group" aria-label="${t.langLabel}">
+        <button type="button" data-action="lang" data-lang="es" aria-pressed="${S.lang === 'es'}">ES</button>
+        <button type="button" data-action="lang" data-lang="eu" aria-pressed="${S.lang === 'eu'}">EU</button>
+      </div>
+    </div>
+    <div class="bar2">${row2}</div>
+  </header>`;
+}
+function filters(t){
+  const opts = [['all', t.all], ...REGIONS.map(r => [r, r]), ['fav', t.favs]];
+  return `<div class="filters" role="group" aria-label="${t.filterLabel}">${opts.map(([v, l]) =>
+    `<button type="button" class="fchip" data-action="filter" data-filter="${v}" aria-pressed="${S.filter === v}">${l}</button>`).join('')}</div>`;
+}
+function timebar(t){
+  if (!S.selT) return '';
+  return `<div class="timebar"><span>${t.forTime(S.selT.slice(11, 16))}</span><button type="button" class="now" data-action="now">${t.now}</button></div>`;
+}
 
-  const chips = favs.map(id => {
-    const sc = levelFor(id);
-    const c = sc ? COLORS[sc.level] : 'var(--empty)';
-    return `<button type="button" class="chip" data-action="select" data-id="${id}" aria-current="${id === sel}"><span class="dot" style="background:${c}"></span>${byId(id).name[lang]}</button>`;
+/* ---------- Render: ficha de playa ---------- */
+function beachView(t){
+  const b = byId(S.sel);
+  const hours = hoursOf(S.sel);
+  const i0 = idxNow(hours), i = idxFor(hours), cur = i >= 0 ? hours[i] : null, s = score(cur);
+  const label = levelLabel(s, t), color = levelColor(s);
+
+  let summary = t.noData;
+  if (cur && cur.h != null){
+    summary = t.swellSentence(cur.d != null ? t.dirFrom[dirIdx(cur.d)] : '', fmt(cur.h, 1), fmt(cur.p, 0));
+    if (cur.ws != null){
+      const f = cur.ws < 12 ? 0 : cur.ws <= 25 ? 1 : 2;
+      const off = cur.wd != null && cur.wd >= 135 && cur.wd <= 225;
+      summary += ' ' + t.windSentence(t.force[f], cur.wd != null ? t.dirFrom[dirIdx(cur.wd)] : '', off && cur.ws <= 25);
+    }
+  }
+  const windTxt = cur && cur.ws != null ? fmt(cur.ws, 0) + ' km/h ' + (cur.wd != null ? t.abbr[dirIdx(cur.wd)] : '') : '—';
+  let breakdown = '';
+  if (s && s.exc) breakdown = `<p class="exc">${s.exc === 'flat' ? t.excFlat : t.excBig}</p>`;
+  else if (s) breakdown = `<div class="rows">
+      <div class="row"><span class="k">${t.hRow}</span><span>${fmt(cur.h,1)} m · ${t.hReason[s.hr]}</span><span class="pts">${s.hp}/2</span></div>
+      <div class="row"><span class="k">${t.pRow}</span><span>${fmt(cur.p,0)} s · ${t.pReason[s.pr]}</span><span class="pts">${s.pp}/2</span></div>
+      <div class="row"><span class="k">${t.wRow}</span><span>${windTxt} · ${t.wReason[s.wr]}</span><span class="pts">${s.wp}/2</span></div>
+      <div class="row total"><span class="k">${t.total}</span><span>${label}</span><span class="pts">${s.total}/6</span></div>
+    </div>`;
+
+  let tideTxt = '—';
+  if (cur && cur.tide != null && hours[i + 1] && hours[i + 1].tide != null) tideTxt = hours[i + 1].tide >= cur.tide ? t.rising : t.falling;
+
+  const steps = [];
+  for (let k = 0; k < 7; k++){ const x = hours[i0 + k * 2]; if (x) steps.push(x); }
+  let bestLvl = -1, bestT = null;
+  const bars = steps.map(x => {
+    const sc = score(x), lv = sc ? sc.level : -1;
+    if (lv > bestLvl){ bestLvl = lv; bestT = x.t.slice(11, 16); }
+    return `<button type="button" class="bar-col" data-action="hour" data-t="${x.t}" aria-pressed="${!!cur && x.t === cur.t}"><span class="bar" style="height:${lv < 0 ? 6 : BAR_H[lv]}px;background:${lv < 0 ? 'var(--empty)' : COLORS[lv]}"></span><span>${x.t.slice(11,13)}<span class="sr"> h: ${levelLabel(sc, t)}</span></span></button>`;
   }).join('');
 
-  const upd = d && d.source === 'live' ? ` · ${t.updated(clock(d.at))}` : '';
+  const notNow = cur && i !== i0;
+  return `
+    <section class="card" aria-label="${t.surfNow}">
+      <div class="hero-row">
+        <div class="light" style="background:${color};box-shadow:0 0 0 6px color-mix(in srgb, ${color} 24%, transparent)"></div>
+        <div><p class="kicker">${notNow ? t.surfAt(cur.t.slice(11,16)) : t.surfNow}</p><div class="level">${label}</div></div>
+        ${notNow ? `<button type="button" class="now" data-action="now">${t.now}</button>` : ''}
+      </div>
+      <p class="summary">${summary}</p>
+      ${s ? `<details><summary>${t.why}${I.chev}</summary>${breakdown}</details>` : ''}
+    </section>
+    <section class="grid">
+      <div class="tile"><span>${t.height}</span><span>${fmt(cur && cur.h, 1)} m</span></div>
+      <div class="tile"><span>${t.period}</span><span>${fmt(cur && cur.p, 0)} s</span></div>
+      <div class="tile"><span>${t.swellDir}</span><span>${cur && cur.d != null ? t.abbr[dirIdx(cur.d)] : '—'}</span></div>
+      <div class="tile"><span>${t.wind}</span><span>${windTxt}</span></div>
+      <div class="tile"><span>${t.tide}</span><span>${tideTxt}</span></div>
+      <div class="tile"><span>${t.water}</span><span>${cur && cur.sst != null ? fmt(cur.sst,0) + ' °C' : '—'}</span></div>
+    </section>
+    <section class="card">
+      <h2 class="kicker">${t.next}</h2>
+      <div class="bars">${bars}</div>
+      <p class="note">${bestLvl > 0 ? t.bestHour(bestT) : t.none} ${t.barsNote}</p>
+    </section>
+    ${b.cam ? `<a class="cam" href="${b.cam}" target="_blank" rel="noopener">${I.cam}${t.cam}</a>` : ''}`;
+}
+
+/* ---------- Render: lista ---------- */
+function listView(t){
+  let items = BEACHES.map((b, n) => ({ b, n, x: curOf(b.id) })).filter(o => matchesFilter(o.b));
+  items.forEach(o => o.s = score(o.x));
+  if (S.order === 'best'){
+    const rank = s => s ? s.level * 10 + Math.max(0, s.total) : -1;
+    items.sort((a, c) => rank(c.s) - rank(a.s) || a.n - c.n);
+  }
+  let body;
+  if (!items.length) body = `<p class="empty">${S.filter === 'fav' ? t.noFavs : '—'}</p>`;
+  else body = `<div class="list">${items.map(({ b, x, s }) => {
+    const fav = S.favs.includes(b.id);
+    const sub = x && x.h != null
+      ? `${b.region} · ${fmt(x.h,1)} m · ${fmt(x.p,0)} s${x.ws != null ? ' · ' + fmt(x.ws,0) + ' km/h ' + (x.wd != null ? t.abbr[dirIdx(x.wd)] : '') : ''}`
+      : b.region;
+    return `<button type="button" class="item" data-action="open" data-id="${b.id}">
+      <span class="dot lg" style="background:${levelColor(s)}"></span>
+      <span class="item-main"><span class="item-name">${fav ? '★ ' : ''}${b.name[S.lang]}</span><span class="item-sub">${sub}</span></span>
+      <span class="item-level">${levelLabel(s, t)}</span>
+    </button>`;
+  }).join('')}</div>`;
+  return `
+    ${filters(t)}
+    <div class="orderrow"><span>${t.order}</span>
+      <div class="seg" role="group" aria-label="${t.order}">
+        <button type="button" data-action="order" data-order="coast" aria-pressed="${S.order === 'coast'}">${t.coast}</button>
+        <button type="button" data-action="order" data-order="best" aria-pressed="${S.order === 'best'}">${t.best}</button>
+      </div>
+    </div>
+    ${timebar(t)}
+    ${body}`;
+}
+
+/* ---------- Render: mapa ---------- */
+const COAST = [[0,120],[130,100],[250,82],[318,86],[340,122],[362,92],[410,96],[480,130],[560,176],[620,200],[690,212],[760,210],[810,204],[880,182],[930,194],[975,188],[1010,165],[1045,130],[1066,95],[1080,60],[1090,20],[1094,0]];
+function smoothPath(p){
+  let d = `M${p[0][0]},${p[0][1]}`;
+  for (let i = 0; i < p.length - 1; i++){
+    const p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2;
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += ` C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0]},${p2[1]}`;
+  }
+  return d;
+}
+const COAST_D = smoothPath(COAST);
+const SEA_D = 'M0,0 L' + COAST_D.slice(1) + ' L1094,0 Z';
+function mapView(t){
+  const dots = BEACHES.map(b => {
+    const s = score(curOf(b.id)), fav = S.favs.includes(b.id), on = matchesFilter(b), isSel = b.id === S.sel;
+    const name = (fav ? '★ ' : '') + b.name[S.lang];
+    const lapurdi = b.region === 'Lapurdi';
+    const lx = lapurdi ? b.mx + 17 : b.mx - 12, ly = lapurdi ? b.my + 5 : b.my + 15;
+    const text = lapurdi
+      ? `<text class="mlabel${fav ? ' fav' : ''}" x="${lx}" y="${ly}">${name}</text>`
+      : `<text class="mlabel${fav ? ' fav' : ''}" x="${lx}" y="${ly}" text-anchor="end" transform="rotate(-40 ${lx} ${ly})">${name}</text>`;
+    return `<g class="mdot" role="button" tabindex="${on ? 0 : -1}" aria-label="${b.name[S.lang]}: ${levelLabel(s, t)}" data-action="open" data-id="${b.id}" style="opacity:${on ? 1 : 0.22}">
+      <circle cx="${b.mx}" cy="${b.my}" r="20" fill="transparent"/>
+      <circle class="ring" cx="${b.mx}" cy="${b.my}" r="15" fill="none" stroke="var(--text)" stroke-width="2" opacity="${isSel ? 1 : 0}"/>
+      <circle cx="${b.mx}" cy="${b.my}" r="9" fill="${levelColor(s)}" stroke="var(--surface)" stroke-width="2.5"/>
+      ${text}
+    </g>`;
+  }).join('');
+  return `
+    ${filters(t)}
+    ${timebar(t)}
+    <div class="mapwrap" id="mapwrap">
+      <svg width="1180" height="290" viewBox="0 0 1180 290" role="group" aria-label="${t.viewMap}">
+        <path d="${SEA_D}" fill="var(--sea)"/>
+        <path d="${COAST_D}" fill="none" stroke="var(--sea-band)" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="${COAST_D}" fill="none" stroke="var(--coast)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+        <text class="mregion" x="170" y="40">Bizkaia</text>
+        <text class="mregion" x="680" y="135">Gipuzkoa</text>
+        <text class="mregion" x="900" y="70">Lapurdi</text>
+        ${dots}
+      </svg>
+    </div>
+    <p class="note">${t.swipe}</p>`;
+}
+
+/* ---------- Render principal ---------- */
+function render(){
+  const t = T[S.lang];
+  if (S.selT && S.selT < nowKey()) S.selT = null;
+  document.documentElement.lang = S.lang;
+  document.title = (S.view === 'beach' ? byId(S.sel).name[S.lang] : t.beaches) + ' · Olatuak';
+  const wrap = document.getElementById('mapwrap');
+  const keepScroll = wrap ? wrap.scrollLeft : null;
+
+  let body;
+  if (S.loading && !S.data) body = `<section class="card"><p class="summary">${t.loading}</p></section>`;
+  else if (S.view === 'list') body = listView(t);
+  else if (S.view === 'map') body = mapView(t);
+  else body = beachView(t);
 
   document.getElementById('app').innerHTML = `
-    <header class="top">
-      <div class="title"><h1>${name}</h1><p>${b.region}${upd}</p></div>
-      <div class="tools">
-        <div class="seg" role="group" aria-label="${t.langLabel}">
-          <button type="button" data-action="lang" data-lang="es" aria-pressed="${lang === 'es'}">ES</button>
-          <button type="button" data-action="lang" data-lang="eu" aria-pressed="${lang === 'eu'}">EU</button>
-        </div>
-        <button type="button" class="star" data-action="star" aria-label="${isFav ? t.unfav : t.fav}" aria-pressed="${isFav}">${ICON_STAR(isFav)}</button>
-      </div>
-    </header>
+    ${header(t)}
+    ${banner(t)}
     ${body}
-    <section class="favs">
-      <h2>${t.favs}</h2>
-      <div class="chips">${chips}<button type="button" class="chip add" data-action="add">${ICON_PLUS}${t.add}</button></div>
-    </section>
-    <footer>${t.footer.replace('Open-Meteo', '<a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>')}</footer>
-  `;
-}
+    <footer>${t.footer.replace('Open-Meteo', '<a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>')}</footer>`;
 
-/* ---------- Selector de playas ---------- */
-const picker = document.getElementById('picker');
-function openPicker(){
-  const t = T[lang];
-  document.getElementById('picker-title').textContent = t.choose;
-  document.getElementById('picker-done').textContent = t.done;
-  document.getElementById('picker-list').innerHTML = BEACHES.map(b => `
-    <label class="opt"><input type="checkbox" value="${b.id}" ${favs.includes(b.id) ? 'checked' : ''}>
-    <span>${b.name[lang]} <small>${b.region}</small></span></label>`).join('');
-  if (picker.showModal) picker.showModal(); else picker.setAttribute('open', '');
-}
-document.getElementById('picker-list').addEventListener('change', e => {
-  const cb = e.target;
-  if (cb.type !== 'checkbox') return;
-  if (cb.checked){ if (!favs.includes(cb.value)) favs.push(cb.value); }
-  else {
-    if (favs.length === 1){ cb.checked = true; return; }
-    favs = favs.filter(x => x !== cb.value);
+  const nw = document.getElementById('mapwrap');
+  if (nw){
+    if (S.pendingScroll != null){ nw.scrollLeft = Math.max(0, S.pendingScroll - nw.clientWidth / 2); S.pendingScroll = null; }
+    else if (keepScroll != null) nw.scrollLeft = keepScroll;
   }
-  favs.sort((a, b) => BEACHES.findIndex(x => x.id === a) - BEACHES.findIndex(x => x.id === b));
-  store.set('favs', favs);
-});
-document.getElementById('picker-done').addEventListener('click', () => {
-  if (picker.close) picker.close(); else picker.removeAttribute('open');
-  favs.forEach(id => { if (!data[id]) load(id); });
-  render();
-});
+}
+function scrollTargetFor(filter){
+  if (REGION_X[filter]) return REGION_X[filter];
+  if (filter === 'fav'){ const f = BEACHES.find(b => S.favs.includes(b.id)); if (f) return f.mx; }
+  return byId(S.sel).mx;
+}
 
 /* ---------- Eventos ---------- */
-document.getElementById('app').addEventListener('click', e => {
+const app = document.getElementById('app');
+app.addEventListener('click', e => {
   const el = e.target.closest('[data-action]');
   if (!el) return;
   const a = el.dataset.action;
-  if (a === 'lang'){ lang = el.dataset.lang; store.set('lang', lang); render(); }
-  if (a === 'star'){
-    if (favs.includes(sel)){ if (favs.length > 1) favs = favs.filter(x => x !== sel); }
-    else favs.push(sel);
-    store.set('favs', favs); render();
+  if (a === 'lang'){ S.lang = el.dataset.lang; store.set('lang', S.lang); }
+  if (a === 'view'){
+    const v = el.dataset.view;
+    S.view = S.view === v ? 'beach' : v;
+    if (S.view === 'map') S.pendingScroll = byId(S.sel).mx;
+    window.scrollTo(0, 0);
   }
-  if (a === 'select'){ sel = el.dataset.id; store.set('sel', sel); if (!data[sel]) load(sel); else render(); }
-  if (a === 'add') openPicker();
-  if (a === 'retry') load(sel);
+  if (a === 'filter'){
+    S.filter = el.dataset.filter; store.set('filter', S.filter);
+    if (S.view === 'map') S.pendingScroll = scrollTargetFor(S.filter);
+  }
+  if (a === 'order'){ S.order = el.dataset.order; store.set('order', S.order); }
+  if (a === 'open'){ S.sel = el.dataset.id; store.set('sel', S.sel); S.view = 'beach'; window.scrollTo(0, 0); }
+  if (a === 'star'){
+    S.favs = S.favs.includes(S.sel) ? S.favs.filter(x => x !== S.sel) : [...S.favs, S.sel];
+    S.favs.sort((x, y) => BEACHES.findIndex(b => b.id === x) - BEACHES.findIndex(b => b.id === y));
+    store.set('favs', S.favs);
+  }
+  if (a === 'hour'){ const i0 = idxNow(hoursOf(S.sel)); const nowT = i0 >= 0 ? hoursOf(S.sel)[i0].t : null; S.selT = el.dataset.t === nowT ? null : el.dataset.t; }
+  if (a === 'now') S.selT = null;
+  if (a === 'retry'){ loadAll(); return; }
+  render();
+});
+app.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('g[role="button"]')){ e.preventDefault(); e.target.dispatchEvent(new MouseEvent('click', { bubbles:true })); }
 });
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState !== 'visible') return;
-  const d = data[sel];
-  if (d && d.at && Date.now() - new Date(d.at).getTime() > 30 * 60 * 1000) load(sel);
+  if (document.visibilityState !== 'visible' || !S.data) return;
+  if (Date.now() - new Date(S.data.at).getTime() > 30 * 60 * 1000) loadAll();
 });
 
 /* ---------- Arranque ---------- */
 render();
-[...new Set([sel, ...favs])].forEach(load);
+loadAll();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
