@@ -81,8 +81,24 @@ details[open] summary svg{ transform: rotate(180deg); }
 
 .grid{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
 .tile{ background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:4px; }
-.tile span:first-child{ font-size:13px; color:var(--muted); }
-.tile span:last-child{ font-size:24px; font-weight:800; }
+.tile span:first-of-type{ font-size:13px; color:var(--muted); }
+.tile span:last-of-type{ font-size:24px; font-weight:800; }
+.tilebtn{ position:relative; text-align:left; cursor:pointer; }
+.tilebtn[aria-expanded="true"]{ border-color:var(--text); }
+.tchev{ position:absolute; top:14px; right:12px; color:var(--muted); transition: transform .2s ease; }
+.tilebtn[aria-expanded="true"] .tchev{ transform: rotate(180deg); }
+.panelhead{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.panelhead h2{ margin:0; font-size:18px; font-weight:800; }
+.closebtn{ min-height:44px; padding:0 16px; border-radius:22px; border:1px solid var(--line); background:transparent; font-weight:700; cursor:pointer; }
+.ext{ display:flex; flex-direction:column; gap:8px; }
+.extrow{ display:flex; justify-content:space-between; gap:12px; font-size:15px; }
+.extrow span:first-child{ font-weight:700; }
+.tidegrid{ display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:6px; }
+.tidecell{ min-height:48px; padding:4px; border:1px solid var(--line); border-radius:12px; background:transparent; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:12px; color:var(--muted); cursor:pointer; }
+.tidecell b{ font-size:14px; font-weight:800; color:var(--text); }
+.tidecell[aria-pressed="true"]{ background:var(--chip-on); border-color:var(--chip-on); color:var(--chip-on-text); }
+.tidecell[aria-pressed="true"] b{ color:var(--chip-on-text); }
+.tlabel{ font-family: Manrope, system-ui, sans-serif; font-size:12px; fill:var(--muted); }
 
 .bars{ display:grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap:6px; align-items:end; }
 .bar-col{ display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:8px; min-height:80px; padding:6px 0; border:0; border-radius:12px; background:transparent; cursor:pointer; }
@@ -170,6 +186,8 @@ const T = {
     excFlat:'Menos de 0,4 m de swell: rojo directamente, el mar está plano.',
     excBig:'Más de 3,5 m de swell: rojo directamente, demasiado grande.',
     rising:'Subiendo', falling:'Bajando',
+    tides:'Mareas', high:'Pleamar', low:'Bajamar', tomorrow:'mañana', tideHourly:'Por horas', tideClose:'Cerrar',
+    tideNote:'Altura respecto al nivel medio del mar. Es orientativo: no lo uses para navegar.',
     next:'Próximas horas', bestHour:h=>`Mejor hora: ${h}.`, none:'Nada aprovechable en las próximas horas.',
     barsNote:'Cuanto más alta la barra, mejor. Toca una barra para ver esa hora.',
     cam:'Ver cámara', fav:'Añadir a favoritas', unfav:'Quitar de favoritas',
@@ -202,6 +220,8 @@ const T = {
     excFlat:'0,4 m baino swell txikiagoa: gorria zuzenean, itsasoa laua dago.',
     excBig:'3,5 m baino swell handiagoa: gorria zuzenean, handiegia.',
     rising:'Igotzen', falling:'Jaisten',
+    tides:'Mareak', high:'Itsasgora', low:'Itsasbehera', tomorrow:'bihar', tideHourly:'Orduka', tideClose:'Itxi',
+    tideNote:'Itsasoaren batez besteko mailarekiko altuera. Orientagarria da: ez erabili nabigatzeko.',
     next:'Hurrengo orduak', bestHour:h=>`Ordurik onena: ${h}.`, none:'Ez dago ezer aprobetxagarririk hurrengo orduetan.',
     barsNote:'Zenbat eta barra altuagoa, orduan eta hobeto. Sakatu barra bat ordu hori ikusteko.',
     cam:'Kamera ikusi', fav:'Gogokoetara gehitu', unfav:'Gogokoetatik kendu',
@@ -246,7 +266,9 @@ const S = {
   selT: null,
   loading: true,
   data: null,
-  pendingScroll: null
+  pendingScroll: null,
+  tideOpen: false,
+  tideScroll: false
 };
 if (!byId(S.sel)) S.sel = 'zarautz';
 
@@ -391,6 +413,7 @@ const matchesFilter = b => S.filter === 'all' ? true : S.filter === 'fav' ? S.fa
 const I = {
   star: on => `<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.9z" fill="${on ? 'var(--accent)' : 'none'}" stroke="${on ? 'var(--accent)' : 'var(--muted)'}" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
   chev: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`,
+  chevSm: `<svg class="tchev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`,
   cam: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg>`,
   list: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2" fill="currentColor"/><circle cx="4.5" cy="12" r="1.2" fill="currentColor"/><circle cx="4.5" cy="18" r="1.2" fill="currentColor"/></svg>`,
   map: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5l6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>`
@@ -471,6 +494,11 @@ function beachView(t){
 
   let tideTxt = '—';
   if (cur && cur.tide != null && hours[i + 1] && hours[i + 1].tide != null) tideTxt = hours[i + 1].tide >= cur.tide ? t.rising : t.falling;
+  const hasTide = hours.some(x => x.tide != null);
+  const tidePanel = hasTide && S.tideOpen ? tideView(t, hours, i0, cur) : '';
+  const tideTile = hasTide
+    ? `<button type="button" class="tile tilebtn" data-action="tide" aria-expanded="${S.tideOpen}">${I.chevSm}<span>${t.tide}</span><span>${tideTxt}</span></button>`
+    : `<div class="tile"><span>${t.tide}</span><span>${tideTxt}</span></div>`;
 
   const steps = [];
   for (let k = 0; k < 7; k++){ const x = hours[i0 + k * 2]; if (x) steps.push(x); }
@@ -497,15 +525,76 @@ function beachView(t){
       <div class="tile"><span>${t.period}</span><span>${fmt(cur && cur.p, 0)} s</span></div>
       <div class="tile"><span>${t.swellDir}</span><span>${cur && cur.d != null ? t.abbr[dirIdx(cur.d)] : '—'}</span></div>
       <div class="tile"><span>${t.wind}</span><span>${windTxt}</span></div>
-      <div class="tile"><span>${t.tide}</span><span>${tideTxt}</span></div>
+      ${tideTile}
       <div class="tile"><span>${t.water}</span><span>${cur && cur.sst != null ? fmt(cur.sst,0) + ' °C' : '—'}</span></div>
     </section>
+    ${tidePanel}
     <section class="card">
       <h2 class="kicker">${t.next}</h2>
       <div class="bars">${bars}</div>
       <p class="note">${bestLvl > 0 ? t.bestHour(bestT) : t.none} ${t.barsNote}</p>
     </section>
     ${b.cam ? `<a class="cam" href="${b.cam}" target="_blank" rel="noopener">${I.cam}${t.cam}</a>` : ''}`;
+}
+
+/* ---------- Render: mareas ---------- */
+function tideTime(x, offMin, t){
+  const today = nowKey().slice(0, 10), date = x.t.slice(0, 10);
+  const total = parseInt(x.t.slice(11, 13), 10) * 60 + offMin;
+  const wrapped = ((total % 1440) + 1440) % 1440;
+  const hh = String(Math.floor(wrapped / 60)).padStart(2, '0'), mm = String(wrapped % 60).padStart(2, '0');
+  const tomorrow = (date !== today && total >= 0) || (date === today && total >= 1440);
+  return (tomorrow ? t.tomorrow + ' ' : '') + hh + ':' + mm;
+}
+function tideView(t, hours, i0, cur){
+  const from = Math.max(0, i0), span = Math.min(24, hours.length - 1 - from);
+  const ext = [];
+  for (let j = Math.max(1, from); j < Math.min(hours.length - 1, from + 36); j++){
+    const a = hours[j - 1].tide, b = hours[j].tide, c = hours[j + 1].tide;
+    if (a == null || b == null || c == null) continue;
+    const hi = b >= a && b > c, lo = b <= a && b < c;
+    if (!hi && !lo) continue;
+    const den = a - 2 * b + c, off = den !== 0 ? 0.5 * (a - c) / den : 0;
+    ext.push({ hi, x: hours[j], off: Math.round(off * 60), v: b - 0.25 * (a - c) * off });
+  }
+  let chart = '';
+  const pts = [];
+  for (let k = 0; k <= span; k++){ const v = hours[from + k].tide; if (v != null) pts.push([k, v]); }
+  if (pts.length > 2){
+    const vs = pts.map(p => p[1]), mn = Math.min(...vs), mx = Math.max(...vs), rng = (mx - mn) || 1;
+    const X = k => 16 + k * (308 / 24), Y = v => 104 - (v - mn) / rng * 80;
+    const P = pts.map(([k, v]) => [Math.round(X(k) * 10) / 10, Math.round(Y(v) * 10) / 10]);
+    const line = smoothPath(P);
+    const area = line + ` L${P[P.length - 1][0]},120 L${P[0][0]},120 Z`;
+    const selK = cur ? hours.indexOf(cur) - from : -1;
+    const selV = selK > 0 && selK <= span ? hours[from + selK].tide : null;
+    const nowV = hours[from].tide;
+    const labels = [0, 6, 12, 18, 24].filter(k => k <= span).map(k => `<text x="${X(k)}" y="136" text-anchor="middle" class="tlabel">${hours[from + k].t.slice(11, 13)}h</text>`).join('');
+    chart = `<svg viewBox="0 0 340 142" width="100%" role="img" aria-label="${t.tides}">
+      <path d="${area}" fill="var(--sea)"/>
+      <path d="${line}" fill="none" stroke="var(--coast)" stroke-width="2.5"/>
+      <line x1="${X(0)}" y1="12" x2="${X(0)}" y2="120" stroke="var(--muted)" stroke-dasharray="3 3"/>
+      ${nowV != null ? `<circle cx="${X(0)}" cy="${Y(nowV)}" r="5" fill="var(--coast)"/>` : ''}
+      ${selV != null ? `<circle cx="${X(selK)}" cy="${Y(selV)}" r="6" fill="var(--text)"/>` : ''}
+      ${labels}
+    </svg>`;
+  }
+  const rows = ext.slice(0, 4).map(e => `<div class="extrow"><span>${e.hi ? t.high : t.low}</span><span>${tideTime(e.x, e.off, t)} · ${fmt(e.v, 1)} m</span></div>`).join('');
+  const cells = [];
+  for (let k = 0; k < 24 && from + k < hours.length; k++){
+    const x = hours[from + k], nx = hours[from + k + 1];
+    if (x.tide == null) continue;
+    const arrow = nx && nx.tide != null ? (nx.tide >= x.tide ? '↑' : '↓') : '';
+    cells.push(`<button type="button" class="tidecell" data-action="hour" data-t="${x.t}" aria-pressed="${!!cur && x.t === cur.t}"><span>${x.t.slice(11, 13)}h</span><b>${fmt(x.tide, 1)} m ${arrow}</b></button>`);
+  }
+  return `<section class="card" id="tidepanel">
+    <div class="panelhead"><h2>${t.tides}</h2><button type="button" class="closebtn" data-action="tide">${t.tideClose}</button></div>
+    ${chart}
+    ${rows ? `<div class="ext">${rows}</div>` : ''}
+    <h3 class="kicker">${t.tideHourly}</h3>
+    <div class="tidegrid">${cells.join('')}</div>
+    <p class="note">${t.tideNote}</p>
+  </section>`;
 }
 
 /* ---------- Render: lista ---------- */
@@ -614,6 +703,11 @@ function render(){
     if (S.pendingScroll != null){ nw.scrollLeft = Math.max(0, S.pendingScroll - nw.clientWidth / 2); S.pendingScroll = null; }
     else if (keepScroll != null) nw.scrollLeft = keepScroll;
   }
+  if (S.tideScroll){
+    S.tideScroll = false;
+    const tp = document.getElementById('tidepanel');
+    if (tp && tp.scrollIntoView) tp.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' });
+  }
 }
 function scrollTargetFor(filter){
   if (REGION_X[filter]) return REGION_X[filter];
@@ -646,6 +740,7 @@ app.addEventListener('click', e => {
     store.set('favs', S.favs);
   }
   if (a === 'hour'){ const i0 = idxNow(hoursOf(S.sel)); const nowT = i0 >= 0 ? hoursOf(S.sel)[i0].t : null; S.selT = el.dataset.t === nowT ? null : el.dataset.t; }
+  if (a === 'tide'){ S.tideOpen = !S.tideOpen; S.tideScroll = S.tideOpen; }
   if (a === 'now') S.selT = null;
   if (a === 'retry'){ loadAll(); return; }
   render();
