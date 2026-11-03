@@ -81,8 +81,21 @@ details[open] summary svg{ transform: rotate(180deg); }
 
 .grid{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
 .tile{ background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:4px; }
-.tile span:first-of-type{ font-size:13px; color:var(--muted); }
-.tile span:last-of-type{ font-size:24px; font-weight:800; }
+.tile > span:first-of-type{ font-size:13px; color:var(--muted); }
+.tile > span:last-of-type{ font-size:24px; font-weight:800; }
+.tsub{ font-size:13px; color:var(--muted); }
+.tile.wide{ grid-column: 1 / -1; flex-direction:row; align-items:center; gap:14px; }
+.wxicon{ flex-shrink:0; }
+.wxmain{ display:flex; flex-direction:column; gap:2px; }
+.wxmain .lbl{ font-size:13px; color:var(--muted); }
+.wxmain .val{ font-size:24px; font-weight:800; }
+.legend{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:8px; margin-top:8px; }
+.lg{ display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:12px; border:1px solid var(--line); font-size:14px; }
+.lg.on{ border-color:var(--text); font-weight:800; }
+.lg .rng{ margin-left:auto; color:var(--muted); font-variant-numeric: tabular-nums; }
+details .kicker{ margin-top:10px; }
+.tidecell.tall{ min-height:70px; gap:2px; }
+.tidecell .c3{ font-size:12px; display:flex; align-items:center; gap:3px; }
 .tilebtn{ position:relative; text-align:left; cursor:pointer; }
 .tilebtn[aria-expanded="true"]{ border-color:var(--text); }
 .tchev{ position:absolute; top:14px; right:12px; color:var(--muted); transition: transform .2s ease; }
@@ -180,14 +193,20 @@ const T = {
     levels:['Malo','Flojo','Aceptable','Bueno'], flat:'Plato', big:'Demasiado grande',
     why:'¿Por qué este color?', height:'Altura del swell', period:'Periodo', swellDir:'Dirección del swell',
     wind:'Viento', tide:'Marea', water:'Agua', hRow:'Altura', pRow:'Periodo', wRow:'Viento', total:'Total',
-    hReason:['muy pequeño','pequeño','tamaño ideal','grande','muy grande'],
-    pReason:['corto','medio','largo'],
-    wReason:['fuerte','moderado','flojo','offshore','sin datos, cuenta como moderado'],
+    hReason:['muy pequeño','pequeño','buen tamaño','tamaño ideal','grande','muy grande'],
+    pReason:['corto','medio','largo','muy largo'],
+    wReason:['fuerte','moderado','flojo','calma','offshore','offshore fuerte','sin datos, cuenta como moderado'],
     excFlat:'Menos de 0,4 m de swell: rojo directamente, el mar está plano.',
     excBig:'Más de 3,5 m de swell: rojo directamente, demasiado grande.',
     rising:'Subiendo', falling:'Bajando',
     tides:'Mareas', high:'Pleamar', low:'Bajamar', tomorrow:'mañana', tideHourly:'Por horas', tideClose:'Cerrar',
     tideNote:'Altura respecto al nivel medio del mar. Es orientativo: no lo uses para navegar.',
+    scale:'Escala', swellT:'Swell', gusts:'rachas', maxGust:'Racha máxima (24 h)',
+    windLegend:'Línea continua: viento medio. Discontinua: rachas.',
+    windNote:'La flecha indica hacia dónde sopla; en verde, offshore (del sur). El número pequeño son las rachas.',
+    swellNote:'La flecha indica hacia dónde va el swell.',
+    weather:'Tiempo', rain:'prob. lluvia', uvMax:'UV máximo (24 h)', weatherNote:'El porcentaje es la probabilidad de lluvia.',
+    wx:{ clear:'Despejado', partly:'Intervalos nubosos', cloudy:'Nublado', fog:'Niebla', drizzle:'Llovizna', rain:'Lluvia', showers:'Chubascos', snow:'Nieve', storm:'Tormenta' },
     next:'Próximas horas', bestHour:h=>`Mejor hora: ${h}.`, none:'Nada aprovechable en las próximas horas.',
     barsNote:'Cuanto más alta la barra, mejor. Toca una barra para ver esa hora.',
     cam:'Ver cámara', fav:'Añadir a favoritas', unfav:'Quitar de favoritas',
@@ -214,14 +233,20 @@ const T = {
     levels:['Txarra','Ahula','Onargarria','Ona'], flat:'Itsasoa laua', big:'Handiegia',
     why:'Zergatik kolore hau?', height:'Swell-aren altuera', period:'Periodoa', swellDir:'Swell-aren norabidea',
     wind:'Haizea', tide:'Marea', water:'Ura', hRow:'Altuera', pRow:'Periodoa', wRow:'Haizea', total:'Guztira',
-    hReason:['oso txikia','txikia','tamaina aproposa','handia','oso handia'],
-    pReason:['laburra','ertaina','luzea'],
-    wReason:['indartsua','ertaina','ahula','lehorrekoa','daturik ez, ertaintzat hartuta'],
+    hReason:['oso txikia','txikia','tamaina ona','tamaina aproposa','handia','oso handia'],
+    pReason:['laburra','ertaina','luzea','oso luzea'],
+    wReason:['indartsua','ertaina','ahula','bare','lehorrekoa','lehorreko indartsua','daturik ez, ertaintzat hartuta'],
     excFlat:'0,4 m baino swell txikiagoa: gorria zuzenean, itsasoa laua dago.',
     excBig:'3,5 m baino swell handiagoa: gorria zuzenean, handiegia.',
     rising:'Igotzen', falling:'Jaisten',
     tides:'Mareak', high:'Itsasgora', low:'Itsasbehera', tomorrow:'bihar', tideHourly:'Orduka', tideClose:'Itxi',
     tideNote:'Itsasoaren batez besteko mailarekiko altuera. Orientagarria da: ez erabili nabigatzeko.',
+    scale:'Eskala', swellT:'Swell-a', gusts:'boladak', maxGust:'Bolada handiena (24 h)',
+    windLegend:'Lerro jarraitua: batez besteko haizea. Etena: boladak.',
+    windNote:'Geziak haizea nora doan adierazten du; berdez, lehorrekoa (hegotik). Zenbaki txikia boladak dira.',
+    swellNote:'Geziak swell-a nora doan adierazten du.',
+    weather:'Eguraldia', rain:'euri prob.', uvMax:'UV handiena (24 h)', weatherNote:'Ehunekoa euria egiteko probabilitatea da.',
+    wx:{ clear:'Oskarbi', partly:'Hodei tarteak', cloudy:'Hodeitsu', fog:'Lainoa', drizzle:'Zirimiria', rain:'Euria', showers:'Zaparradak', snow:'Elurra', storm:'Ekaitza' },
     next:'Hurrengo orduak', bestHour:h=>`Ordurik onena: ${h}.`, none:'Ez dago ezer aprobetxagarririk hurrengo orduetan.',
     barsNote:'Zenbat eta barra altuagoa, orduan eta hobeto. Sakatu barra bat ordu hori ikusteko.',
     cam:'Kamera ikusi', fav:'Gogokoetara gehitu', unfav:'Gogokoetatik kendu',
@@ -267,8 +292,8 @@ const S = {
   loading: true,
   data: null,
   pendingScroll: null,
-  tideOpen: false,
-  tideScroll: false
+  panel: null,
+  panelScroll: false
 };
 if (!byId(S.sel)) S.sel = 'zarautz';
 
@@ -292,17 +317,20 @@ function score(x){
   if (!x || x.h == null || x.p == null) return null;
   if (x.h < 0.4) return { level:0, exc:'flat', total:-1 };
   if (x.h > 3.5) return { level:0, exc:'big', total:-1 };
-  const hp = x.h < 0.5 ? 0 : x.h < 0.8 ? 1 : x.h <= 2 ? 2 : x.h <= 3 ? 1 : 0;
-  const pp = x.p < 7 ? 0 : x.p <= 10 ? 1 : 2;
+  const h = x.h, p = x.p, ws = x.ws;
   const off = x.wd != null && x.wd >= 135 && x.wd <= 225;
-  const wp = x.ws == null ? 1 : x.ws > 25 ? 0 : (off || x.ws < 12) ? 2 : 1;
+  const hp = h < 0.6 ? 1 : h < 0.8 ? 2 : h < 1.0 ? 3 : h < 1.2 ? 4 : h <= 2.0 ? 5 : h <= 2.5 ? 4 : h <= 3.0 ? 3 : 2;
+  const pp = p < 6 ? 0 : p < 7 ? 1 : p < 8 ? 2 : p < 10 ? 3 : p < 12 ? 4 : 5;
+  const wp = ws == null ? 3 : off ? (ws <= 20 ? 5 : ws <= 30 ? 3 : 1)
+    : ws < 5 ? 5 : ws < 10 ? 4 : ws < 15 ? 3 : ws < 20 ? 2 : ws <= 25 ? 1 : 0;
   const total = hp + pp + wp;
-  const level = total <= 1 ? 0 : total <= 3 ? 1 : total === 4 ? 2 : 3;
-  const hr = x.h < 0.5 ? 0 : x.h < 0.8 ? 1 : x.h <= 2 ? 2 : x.h <= 3 ? 3 : 4;
-  const pr = x.p < 7 ? 0 : x.p <= 10 ? 1 : 2;
-  const wr = x.ws == null ? 4 : x.ws > 25 ? 0 : off ? 3 : x.ws < 12 ? 2 : 1;
+  const level = total <= 5 ? 0 : total <= 8 ? 1 : total <= 11 ? 2 : 3;
+  const hr = h < 0.6 ? 0 : h < 1.0 ? 1 : h < 1.2 ? 2 : h <= 2.0 ? 3 : h <= 2.5 ? 4 : 5;
+  const pr = p < 7 ? 0 : p < 10 ? 1 : p < 12 ? 2 : 3;
+  const wr = ws == null ? 6 : off ? (ws > 20 ? 5 : 4) : ws > 20 ? 0 : ws >= 10 ? 1 : ws >= 5 ? 2 : 3;
   return { level, hp, pp, wp, total, off, hr, pr, wr };
 }
+const RANGES = ['0–5','6–8','9–11','12–15'];
 const levelLabel = (s, t) => !s ? '—' : s.exc === 'flat' ? t.flat : s.exc === 'big' ? t.big : t.levels[s.level];
 const levelColor = s => s ? COLORS[s.level] : 'var(--empty)';
 
@@ -329,14 +357,18 @@ const hasWaves = o => !!(o && o.hourly && o.hourly.wave_height && o.hourly.wave_
 function mapBy(h, key){ if (!h || !h[key] || !h.time) return null; return new Map(h.time.map((t, j) => [t, h[key][j]])); }
 function buildHours(H, W, SS, L){
   if (!H || !H.time) return [];
-  const ws = mapBy(W,'wind_speed_10m'), wd = mapBy(W,'wind_direction_10m'), sst = mapBy(SS,'sea_surface_temperature'), tide = mapBy(L,'sea_level_height_msl');
-  const g = (m, t) => m ? (m.get(t) ?? null) : null;
+  const m = k => mapBy(W, k);
+  const ws = m('wind_speed_10m'), wd = m('wind_direction_10m'), wg = m('wind_gusts_10m'), ta = m('temperature_2m'),
+        rp = m('precipitation_probability'), wc = m('weather_code'), uv = m('uv_index'), dy = m('is_day');
+  const sst = mapBy(SS, 'sea_surface_temperature'), tide = mapBy(L, 'sea_level_height_msl');
+  const g = (mp, t) => mp ? (mp.get(t) ?? null) : null;
   return H.time.map((t, j) => ({
     t,
     h: at(H.swell_wave_height, j) ?? at(H.wave_height, j),
     p: at(H.swell_wave_period, j) ?? at(H.wave_period, j),
     d: at(H.swell_wave_direction, j) ?? at(H.wave_direction, j),
-    ws: g(ws, t), wd: g(wd, t), sst: g(sst, t), tide: g(tide, t)
+    ws: g(ws, t), wd: g(wd, t), wg: g(wg, t), ta: g(ta, t), rp: g(rp, t), wc: g(wc, t), uv: g(uv, t), dy: g(dy, t),
+    sst: g(sst, t), tide: g(tide, t)
   }));
 }
 async function loadAll(){
@@ -353,7 +385,7 @@ async function loadAll(){
       bad.forEach((k, n) => { if (hasWaves(r[n])) marine[k] = r[n]; });
     }
     const ex = await Promise.allSettled([
-      batch(FORECAST, 'wind_speed_10m,wind_direction_10m', BEACHES),
+      batch(FORECAST, 'wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m,precipitation_probability,weather_code,uv_index,is_day', BEACHES),
       batch(MARINE, 'sea_surface_temperature', BEACHES, lat2),
       batch(MARINE, 'sea_level_height_msl', BEACHES, lat2)
     ]);
@@ -386,7 +418,9 @@ function demoAll(){
         h: Math.round((1.0 + 0.7 * Math.sin((j + s) / 7)) * 10) / 10,
         p: Math.round(9.5 + 3 * Math.sin((j + s) / 9)),
         d: 315, ws: Math.round(6 + 14 * Math.max(0, Math.sin((hr - 11 + n % 3) / 4))),
-        wd: hr < 12 ? 185 : 320, sst: 16, tide: Math.sin(2 * Math.PI * (j + s) / 12.4)
+        wd: hr < 12 ? 185 : 320, sst: 16, tide: Math.sin(2 * Math.PI * (j + s) / 12.4),
+        wg: Math.round(12 + 18 * Math.max(0, Math.sin((hr - 11 + n % 3) / 4))), ta: Math.round(14 + 5 * Math.sin((hr - 9) / 24 * 2 * Math.PI)),
+        rp: hr > 15 ? 40 : 10, wc: hr > 15 ? 61 : hr > 11 ? 2 : 0, uv: hr > 9 && hr < 17 ? 3 : 0, dy: hr >= 8 && hr < 18 ? 1 : 0
       });
     }
     out[b.id] = arr;
@@ -467,6 +501,132 @@ function timebar(t){
 }
 
 /* ---------- Render: ficha de playa ---------- */
+const WX_GROUP = c => c == null ? null : c <= 1 ? 'clear' : c === 2 ? 'partly' : c === 3 ? 'cloudy' : (c === 45 || c === 48) ? 'fog'
+  : (c >= 51 && c <= 57) ? 'drizzle' : (c >= 61 && c <= 67) ? 'rain' : ((c >= 71 && c <= 77) || c === 85 || c === 86) ? 'snow'
+  : (c >= 80 && c <= 82) ? 'showers' : c >= 95 ? 'storm' : 'cloudy';
+function wxIcon(c, day, size){
+  const g = WX_GROUP(c);
+  const C = 'M7 17h10a3.5 3.5 0 0 0 .5-6.96A5.5 5.5 0 0 0 7.1 9.5 3.75 3.75 0 0 0 7 17z';
+  const up = `<path d="${C}" transform="translate(0 -3)"/>`;
+  const SUN = '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>';
+  const MOON = '<path d="M19.5 14.5A7.5 7.5 0 1 1 9.5 4.5a6 6 0 0 0 10 10z"/>';
+  const body = {
+    clear: day === 0 ? MOON : SUN,
+    partly: day === 0 ? `<path d="${C}"/>` : `<circle cx="8" cy="8" r="3"/><path d="M8 2.5v1.2M2.5 8h1.2M4.1 4.1l.9.9M11.9 4.1l-.9.9"/><path d="${C}" transform="translate(2 2) scale(.9)"/>`,
+    cloudy: `<path d="${C}"/>`,
+    fog: '<path d="M4 8h16M6 12h12M4 16h16"/>',
+    drizzle: up + '<path d="M9 18.5v1M13 18.5v1M17 18.5v1"/>',
+    rain: up + '<path d="M8.5 17.5l-1 3M12.5 17.5l-1 3M16.5 17.5l-1 3"/>',
+    showers: up + '<path d="M9 17.5l-1.5 4M14 17.5l-1.5 4"/>',
+    snow: up + '<path d="M8.5 19h.01M12 20.5h.01M15.5 19h.01" stroke-width="2.6"/>',
+    storm: up + '<path d="M12.5 15l-2.5 4h3l-2 4"/>'
+  }[g];
+  if (!body) return '';
+  return `<svg class="wxicon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+}
+const dirArrow = (deg, color) => deg == null ? '' : `<svg width="14" height="14" viewBox="0 0 24 24" style="transform:rotate(${Math.round((deg + 180) % 360)}deg)" aria-hidden="true"><path d="M12 20V4M12 4l-6 6M12 4l6 6" fill="none" stroke="${color || 'currentColor'}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const isOff = x => x && x.wd != null && x.wd >= 135 && x.wd <= 225;
+
+function lineChart(hours, from, cur, series, opt){
+  const span = Math.min(24, hours.length - 1 - from);
+  if (span < 2) return '';
+  const vals = [];
+  series.forEach(s => { for (let k = 0; k <= span; k++){ const v = s.get(hours[from + k]); if (v != null) vals.push(v); } });
+  if (vals.length < 3) return '';
+  const mx = Math.max(...vals), mn = opt.min != null ? Math.min(opt.min, ...vals) : Math.min(...vals), rng = (mx - mn) || 1;
+  const X = k => 16 + k * (290 / 24), Y = v => 104 - (v - mn) / rng * 80;
+  let paths = '';
+  series.forEach(s => {
+    const P = [];
+    for (let k = 0; k <= span; k++){ const v = s.get(hours[from + k]); if (v != null) P.push([Math.round(X(k) * 10) / 10, Math.round(Y(v) * 10) / 10]); }
+    if (P.length < 2) return;
+    const line = smoothPath(P);
+    if (s.fill) paths += `<path d="${line} L${P[P.length - 1][0]},120 L${P[0][0]},120 Z" fill="var(--sea)"/>`;
+    paths += `<path d="${line}" fill="none" stroke="${s.stroke}" stroke-width="${s.width || 2.5}"${s.dash ? ` stroke-dasharray="${s.dash}"` : ''}/>`;
+  });
+  const main = series[0], nowV = main.get(hours[from]);
+  const selK = cur ? hours.indexOf(cur) - from : -1;
+  const selV = selK > 0 && selK <= span ? main.get(hours[from + selK]) : null;
+  const labels = [0, 6, 12, 18, 24].filter(k => k <= span).map(k => `<text x="${X(k)}" y="136" text-anchor="middle" class="tlabel">${hours[from + k].t.slice(11, 13)}h</text>`).join('');
+  const scale = opt.fmt ? `<text x="338" y="${Y(mx) + 4}" text-anchor="end" class="tlabel">${opt.fmt(mx)}</text><text x="338" y="${Y(mn) + 4}" text-anchor="end" class="tlabel">${opt.fmt(mn)}</text>` : '';
+  return `<svg viewBox="0 0 340 142" width="100%" role="img" aria-label="${opt.label || ''}">
+    ${paths}
+    <line x1="${X(0)}" y1="12" x2="${X(0)}" y2="120" stroke="var(--muted)" stroke-dasharray="3 3"/>
+    ${nowV != null ? `<circle cx="${X(0)}" cy="${Y(nowV)}" r="5" fill="${main.stroke}"/>` : ''}
+    ${selV != null ? `<circle cx="${X(selK)}" cy="${Y(selV)}" r="6" fill="var(--text)" stroke="var(--surface)" stroke-width="2"/>` : ''}
+    ${labels}${scale}
+  </svg>`;
+}
+function hourCells(hours, from, cur, inner){
+  const out = [];
+  for (let k = 0; k < 24 && from + k < hours.length; k++){
+    const x = hours[from + k], c = inner(x, hours[from + k + 1]);
+    if (c == null) continue;
+    out.push(`<button type="button" class="tidecell tall" data-action="hour" data-t="${x.t}" aria-pressed="${!!cur && x.t === cur.t}"><span>${x.t.slice(11, 13)}h</span>${c}</button>`);
+  }
+  return `<div class="tidegrid">${out.join('')}</div>`;
+}
+const panelWrap = (title, inner, t) => `<section class="card" id="panel">
+  <div class="panelhead"><h2>${title}</h2><button type="button" class="closebtn" data-action="panel" data-panel="${S.panel}">${t.tideClose}</button></div>
+  ${inner}</section>`;
+
+function swellView(t, hours, from, cur){
+  const chart = lineChart(hours, from, cur, [{ get: x => x.h, stroke: 'var(--coast)', fill: true }], { label: t.swellT, fmt: v => fmt(v, 1) + ' m' });
+  const cells = hourCells(hours, from, cur, x => x.h == null ? null : `<b>${fmt(x.h, 1)} m</b><span class="c3">${fmt(x.p, 0)} s ${dirArrow(x.d)}</span>`);
+  return panelWrap(t.swellT, `${chart}<h3 class="kicker">${t.tideHourly}</h3>${cells}<p class="note">${t.swellNote}</p>`, t);
+}
+function windView(t, hours, from, cur){
+  const chart = lineChart(hours, from, cur, [
+    { get: x => x.ws, stroke: 'var(--text)' },
+    { get: x => x.wg, stroke: 'var(--muted)', dash: '4 4', width: 2 }
+  ], { label: t.wind, fmt: v => fmt(v, 0) + ' km/h', min: 0 });
+  let mg = null;
+  for (let k = 0; k <= 24 && from + k < hours.length; k++){ const g = hours[from + k].wg; if (g != null && (mg == null || g > mg)) mg = g; }
+  const cells = hourCells(hours, from, cur, x => {
+    if (x.ws == null) return null;
+    return `<b>${fmt(x.ws, 0)} km/h</b><span class="c3">${dirArrow(x.wd, isOff(x) ? 'var(--green)' : '')}${x.wd != null ? t.abbr[dirIdx(x.wd)] : ''}${x.wg != null ? ' · ' + fmt(x.wg, 0) : ''}</span>`;
+  });
+  return panelWrap(t.wind, `${chart}<p class="note">${t.windLegend}</p>
+    ${mg != null ? `<div class="extrow"><span>${t.maxGust}</span><span>${fmt(mg, 0)} km/h</span></div>` : ''}
+    <h3 class="kicker">${t.tideHourly}</h3>${cells}<p class="note">${t.windNote}</p>`, t);
+}
+function tideTime(x, offMin, t){
+  const today = nowKey().slice(0, 10), date = x.t.slice(0, 10);
+  const total = parseInt(x.t.slice(11, 13), 10) * 60 + offMin;
+  const wrapped = ((total % 1440) + 1440) % 1440;
+  const hh = String(Math.floor(wrapped / 60)).padStart(2, '0'), mm = String(wrapped % 60).padStart(2, '0');
+  const tomorrow = (date !== today && total >= 0) || (date === today && total >= 1440);
+  return (tomorrow ? t.tomorrow + ' ' : '') + hh + ':' + mm;
+}
+function tideView(t, hours, from, cur){
+  const ext = [];
+  for (let j = Math.max(1, from); j < Math.min(hours.length - 1, from + 36); j++){
+    const a = hours[j - 1].tide, b = hours[j].tide, c = hours[j + 1].tide;
+    if (a == null || b == null || c == null) continue;
+    const hi = b >= a && b > c, lo = b <= a && b < c;
+    if (!hi && !lo) continue;
+    const den = a - 2 * b + c, off = den !== 0 ? 0.5 * (a - c) / den : 0;
+    ext.push({ hi, x: hours[j], off: Math.round(off * 60), v: b - 0.25 * (a - c) * off });
+  }
+  const chart = lineChart(hours, from, cur, [{ get: x => x.tide, stroke: 'var(--coast)', fill: true }], { label: t.tides, fmt: v => fmt(v, 1) + ' m' });
+  const rows = ext.slice(0, 4).map(e => `<div class="extrow"><span>${e.hi ? t.high : t.low}</span><span>${tideTime(e.x, e.off, t)} · ${fmt(e.v, 1)} m</span></div>`).join('');
+  const cells = hourCells(hours, from, cur, (x, nx) => {
+    if (x.tide == null) return null;
+    const arrow = nx && nx.tide != null ? (nx.tide >= x.tide ? '↑' : '↓') : '';
+    return `<b>${fmt(x.tide, 1)} m</b><span class="c3">${arrow}</span>`;
+  });
+  return panelWrap(t.tides, `${chart}${rows ? `<div class="ext">${rows}</div>` : ''}<h3 class="kicker">${t.tideHourly}</h3>${cells}<p class="note">${t.tideNote}</p>`, t);
+}
+function weatherView(t, hours, from, cur){
+  const chart = lineChart(hours, from, cur, [{ get: x => x.ta, stroke: 'var(--orange)' }], { label: t.weather, fmt: v => fmt(v, 0) + ' °C' });
+  let uv = null;
+  for (let k = 0; k <= 24 && from + k < hours.length; k++){ const u = hours[from + k].uv; if (u != null && (uv == null || u > uv)) uv = u; }
+  const cells = hourCells(hours, from, cur, x => (x.ta == null && x.wc == null) ? null
+    : `${wxIcon(x.wc, x.dy, 20)}<b>${fmt(x.ta, 0)}°</b><span class="c3">${x.rp != null ? fmt(x.rp, 0) + ' %' : ''}</span>`);
+  return panelWrap(t.weather, `${chart}${uv != null ? `<div class="extrow"><span>${t.uvMax}</span><span>${fmt(uv, 0)}</span></div>` : ''}
+    <h3 class="kicker">${t.tideHourly}</h3>${cells}<p class="note">${t.weatherNote}</p>`, t);
+}
+
 function beachView(t){
   const b = byId(S.sel);
   const hours = hoursOf(S.sel);
@@ -477,28 +637,50 @@ function beachView(t){
   if (cur && cur.h != null){
     summary = t.swellSentence(cur.d != null ? t.dirFrom[dirIdx(cur.d)] : '', fmt(cur.h, 1), fmt(cur.p, 0));
     if (cur.ws != null){
-      const f = cur.ws < 12 ? 0 : cur.ws <= 25 ? 1 : 2;
-      const off = cur.wd != null && cur.wd >= 135 && cur.wd <= 225;
-      summary += ' ' + t.windSentence(t.force[f], cur.wd != null ? t.dirFrom[dirIdx(cur.wd)] : '', off && cur.ws <= 25);
+      const f = cur.ws < 10 ? 0 : cur.ws <= 20 ? 1 : 2;
+      summary += ' ' + t.windSentence(t.force[f], cur.wd != null ? t.dirFrom[dirIdx(cur.wd)] : '', isOff(cur));
     }
   }
   const windTxt = cur && cur.ws != null ? fmt(cur.ws, 0) + ' km/h ' + (cur.wd != null ? t.abbr[dirIdx(cur.wd)] : '') : '—';
+
   let breakdown = '';
   if (s && s.exc) breakdown = `<p class="exc">${s.exc === 'flat' ? t.excFlat : t.excBig}</p>`;
   else if (s) breakdown = `<div class="rows">
-      <div class="row"><span class="k">${t.hRow}</span><span>${fmt(cur.h,1)} m · ${t.hReason[s.hr]}</span><span class="pts">${s.hp}/2</span></div>
-      <div class="row"><span class="k">${t.pRow}</span><span>${fmt(cur.p,0)} s · ${t.pReason[s.pr]}</span><span class="pts">${s.pp}/2</span></div>
-      <div class="row"><span class="k">${t.wRow}</span><span>${windTxt} · ${t.wReason[s.wr]}</span><span class="pts">${s.wp}/2</span></div>
-      <div class="row total"><span class="k">${t.total}</span><span>${label}</span><span class="pts">${s.total}/6</span></div>
+      <div class="row"><span class="k">${t.hRow}</span><span>${fmt(cur.h,1)} m · ${t.hReason[s.hr]}</span><span class="pts">${s.hp}/5</span></div>
+      <div class="row"><span class="k">${t.pRow}</span><span>${fmt(cur.p,0)} s · ${t.pReason[s.pr]}</span><span class="pts">${s.pp}/5</span></div>
+      <div class="row"><span class="k">${t.wRow}</span><span>${windTxt} · ${t.wReason[s.wr]}</span><span class="pts">${s.wp}/5</span></div>
+      <div class="row total"><span class="k">${t.total}</span><span>${label}</span><span class="pts">${s.total}/15</span></div>
     </div>`;
+  const legend = s ? `<p class="kicker">${t.scale}</p><div class="legend">${[3, 2, 1, 0].map(l =>
+    `<div class="lg${s.level === l ? ' on' : ''}"><span class="dot" style="background:${COLORS[l]}"></span><span>${t.levels[l]}</span><span class="rng">${RANGES[l]}</span></div>`).join('')}</div>` : '';
 
   let tideTxt = '—';
   if (cur && cur.tide != null && hours[i + 1] && hours[i + 1].tide != null) tideTxt = hours[i + 1].tide >= cur.tide ? t.rising : t.falling;
-  const hasTide = hours.some(x => x.tide != null);
-  const tidePanel = hasTide && S.tideOpen ? tideView(t, hours, i0, cur) : '';
-  const tideTile = hasTide
-    ? `<button type="button" class="tile tilebtn" data-action="tide" aria-expanded="${S.tideOpen}">${I.chevSm}<span>${t.tide}</span><span>${tideTxt}</span></button>`
-    : `<div class="tile"><span>${t.tide}</span><span>${tideTxt}</span></div>`;
+
+  const has = {
+    swell: hours.some(x => x.h != null),
+    wind: hours.some(x => x.ws != null),
+    tide: hours.some(x => x.tide != null),
+    weather: hours.some(x => x.ta != null || x.wc != null)
+  };
+  const tile = (panel, lbl, val, sub) => has[panel]
+    ? `<button type="button" class="tile tilebtn" data-action="panel" data-panel="${panel}" aria-expanded="${S.panel === panel}">${I.chevSm}<span>${lbl}</span><span>${val}</span>${sub ? `<small class="tsub">${sub}</small>` : ''}</button>`
+    : `<div class="tile"><span>${lbl}</span><span>${val}</span></div>`;
+
+  const wxGroup = cur ? WX_GROUP(cur.wc) : null;
+  const wxSub = [wxGroup ? t.wx[wxGroup] : '', cur && cur.rp != null ? `${t.rain} ${fmt(cur.rp, 0)} %` : '', cur && cur.uv != null ? `UV ${fmt(cur.uv, 0)}` : ''].filter(Boolean).join(' · ');
+  const weatherTile = has.weather
+    ? `<button type="button" class="tile tilebtn wide" data-action="panel" data-panel="weather" aria-expanded="${S.panel === 'weather'}">${I.chevSm}${wxIcon(cur && cur.wc, cur && cur.dy, 40)}<div class="wxmain"><span class="lbl">${t.weather}</span><span class="val">${fmt(cur && cur.ta, 0)} °C</span>${wxSub ? `<small class="tsub">${wxSub}</small>` : ''}</div></button>`
+    : '';
+
+  const from = Math.max(0, i0);
+  let panel = '';
+  if (S.panel && has[S.panel]){
+    panel = S.panel === 'swell' ? swellView(t, hours, from, cur)
+      : S.panel === 'wind' ? windView(t, hours, from, cur)
+      : S.panel === 'tide' ? tideView(t, hours, from, cur)
+      : weatherView(t, hours, from, cur);
+  }
 
   const steps = [];
   for (let k = 0; k < 7; k++){ const x = hours[i0 + k * 2]; if (x) steps.push(x); }
@@ -518,83 +700,24 @@ function beachView(t){
         ${notNow ? `<button type="button" class="now" data-action="now">${t.now}</button>` : ''}
       </div>
       <p class="summary">${summary}</p>
-      ${s ? `<details><summary>${t.why}${I.chev}</summary>${breakdown}</details>` : ''}
+      ${s ? `<details><summary>${t.why}${I.chev}</summary>${breakdown}${legend}</details>` : ''}
     </section>
     <section class="grid">
-      <div class="tile"><span>${t.height}</span><span>${fmt(cur && cur.h, 1)} m</span></div>
-      <div class="tile"><span>${t.period}</span><span>${fmt(cur && cur.p, 0)} s</span></div>
-      <div class="tile"><span>${t.swellDir}</span><span>${cur && cur.d != null ? t.abbr[dirIdx(cur.d)] : '—'}</span></div>
-      <div class="tile"><span>${t.wind}</span><span>${windTxt}</span></div>
-      ${tideTile}
+      ${tile('swell', t.height, fmt(cur && cur.h, 1) + ' m')}
+      ${tile('swell', t.period, fmt(cur && cur.p, 0) + ' s')}
+      ${tile('swell', t.swellDir, cur && cur.d != null ? t.abbr[dirIdx(cur.d)] : '—')}
+      ${tile('wind', t.wind, windTxt, cur && cur.wg != null ? `${t.gusts} ${fmt(cur.wg, 0)} km/h` : '')}
+      ${tile('tide', t.tide, tideTxt)}
       <div class="tile"><span>${t.water}</span><span>${cur && cur.sst != null ? fmt(cur.sst,0) + ' °C' : '—'}</span></div>
+      ${weatherTile}
     </section>
-    ${tidePanel}
+    ${panel}
     <section class="card">
       <h2 class="kicker">${t.next}</h2>
       <div class="bars">${bars}</div>
       <p class="note">${bestLvl > 0 ? t.bestHour(bestT) : t.none} ${t.barsNote}</p>
     </section>
     ${b.cam ? `<a class="cam" href="${b.cam}" target="_blank" rel="noopener">${I.cam}${t.cam}</a>` : ''}`;
-}
-
-/* ---------- Render: mareas ---------- */
-function tideTime(x, offMin, t){
-  const today = nowKey().slice(0, 10), date = x.t.slice(0, 10);
-  const total = parseInt(x.t.slice(11, 13), 10) * 60 + offMin;
-  const wrapped = ((total % 1440) + 1440) % 1440;
-  const hh = String(Math.floor(wrapped / 60)).padStart(2, '0'), mm = String(wrapped % 60).padStart(2, '0');
-  const tomorrow = (date !== today && total >= 0) || (date === today && total >= 1440);
-  return (tomorrow ? t.tomorrow + ' ' : '') + hh + ':' + mm;
-}
-function tideView(t, hours, i0, cur){
-  const from = Math.max(0, i0), span = Math.min(24, hours.length - 1 - from);
-  const ext = [];
-  for (let j = Math.max(1, from); j < Math.min(hours.length - 1, from + 36); j++){
-    const a = hours[j - 1].tide, b = hours[j].tide, c = hours[j + 1].tide;
-    if (a == null || b == null || c == null) continue;
-    const hi = b >= a && b > c, lo = b <= a && b < c;
-    if (!hi && !lo) continue;
-    const den = a - 2 * b + c, off = den !== 0 ? 0.5 * (a - c) / den : 0;
-    ext.push({ hi, x: hours[j], off: Math.round(off * 60), v: b - 0.25 * (a - c) * off });
-  }
-  let chart = '';
-  const pts = [];
-  for (let k = 0; k <= span; k++){ const v = hours[from + k].tide; if (v != null) pts.push([k, v]); }
-  if (pts.length > 2){
-    const vs = pts.map(p => p[1]), mn = Math.min(...vs), mx = Math.max(...vs), rng = (mx - mn) || 1;
-    const X = k => 16 + k * (308 / 24), Y = v => 104 - (v - mn) / rng * 80;
-    const P = pts.map(([k, v]) => [Math.round(X(k) * 10) / 10, Math.round(Y(v) * 10) / 10]);
-    const line = smoothPath(P);
-    const area = line + ` L${P[P.length - 1][0]},120 L${P[0][0]},120 Z`;
-    const selK = cur ? hours.indexOf(cur) - from : -1;
-    const selV = selK > 0 && selK <= span ? hours[from + selK].tide : null;
-    const nowV = hours[from].tide;
-    const labels = [0, 6, 12, 18, 24].filter(k => k <= span).map(k => `<text x="${X(k)}" y="136" text-anchor="middle" class="tlabel">${hours[from + k].t.slice(11, 13)}h</text>`).join('');
-    chart = `<svg viewBox="0 0 340 142" width="100%" role="img" aria-label="${t.tides}">
-      <path d="${area}" fill="var(--sea)"/>
-      <path d="${line}" fill="none" stroke="var(--coast)" stroke-width="2.5"/>
-      <line x1="${X(0)}" y1="12" x2="${X(0)}" y2="120" stroke="var(--muted)" stroke-dasharray="3 3"/>
-      ${nowV != null ? `<circle cx="${X(0)}" cy="${Y(nowV)}" r="5" fill="var(--coast)"/>` : ''}
-      ${selV != null ? `<circle cx="${X(selK)}" cy="${Y(selV)}" r="6" fill="var(--text)"/>` : ''}
-      ${labels}
-    </svg>`;
-  }
-  const rows = ext.slice(0, 4).map(e => `<div class="extrow"><span>${e.hi ? t.high : t.low}</span><span>${tideTime(e.x, e.off, t)} · ${fmt(e.v, 1)} m</span></div>`).join('');
-  const cells = [];
-  for (let k = 0; k < 24 && from + k < hours.length; k++){
-    const x = hours[from + k], nx = hours[from + k + 1];
-    if (x.tide == null) continue;
-    const arrow = nx && nx.tide != null ? (nx.tide >= x.tide ? '↑' : '↓') : '';
-    cells.push(`<button type="button" class="tidecell" data-action="hour" data-t="${x.t}" aria-pressed="${!!cur && x.t === cur.t}"><span>${x.t.slice(11, 13)}h</span><b>${fmt(x.tide, 1)} m ${arrow}</b></button>`);
-  }
-  return `<section class="card" id="tidepanel">
-    <div class="panelhead"><h2>${t.tides}</h2><button type="button" class="closebtn" data-action="tide">${t.tideClose}</button></div>
-    ${chart}
-    ${rows ? `<div class="ext">${rows}</div>` : ''}
-    <h3 class="kicker">${t.tideHourly}</h3>
-    <div class="tidegrid">${cells.join('')}</div>
-    <p class="note">${t.tideNote}</p>
-  </section>`;
 }
 
 /* ---------- Render: lista ---------- */
@@ -703,9 +826,9 @@ function render(){
     if (S.pendingScroll != null){ nw.scrollLeft = Math.max(0, S.pendingScroll - nw.clientWidth / 2); S.pendingScroll = null; }
     else if (keepScroll != null) nw.scrollLeft = keepScroll;
   }
-  if (S.tideScroll){
-    S.tideScroll = false;
-    const tp = document.getElementById('tidepanel');
+  if (S.panelScroll){
+    S.panelScroll = false;
+    const tp = document.getElementById('panel');
     if (tp && tp.scrollIntoView) tp.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' });
   }
 }
@@ -740,7 +863,7 @@ app.addEventListener('click', e => {
     store.set('favs', S.favs);
   }
   if (a === 'hour'){ const i0 = idxNow(hoursOf(S.sel)); const nowT = i0 >= 0 ? hoursOf(S.sel)[i0].t : null; S.selT = el.dataset.t === nowT ? null : el.dataset.t; }
-  if (a === 'tide'){ S.tideOpen = !S.tideOpen; S.tideScroll = S.tideOpen; }
+  if (a === 'panel'){ const p = el.dataset.panel; S.panel = S.panel === p ? null : p; S.panelScroll = !!S.panel; }
   if (a === 'now') S.selT = null;
   if (a === 'retry'){ loadAll(); return; }
   render();
