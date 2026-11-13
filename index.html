@@ -156,6 +156,13 @@ details .kicker{ margin-top:10px; }
 .installhelp{ width:100%; padding:16px; border-radius:16px; background:var(--surface); border:1px solid var(--line); font-size:15px; line-height:1.55; }
 .installhelp ol{ margin:8px 0 12px; padding-left:22px; }
 .installhelp li svg{ vertical-align:-3px; }
+.days{ display:grid; grid-template-columns: auto repeat(3, minmax(0,1fr)); gap:6px; align-items:center; }
+.dhead{ font-size:12px; color:var(--muted); text-align:center; font-weight:600; }
+.dlabel{ font-size:14px; font-weight:700; padding-right:6px; }
+.dcell{ min-height:48px; border:0; border-radius:12px; color:#0E1B26; font-weight:800; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.dcell[aria-pressed="true"]{ box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--text); }
+.dcell.past{ background:transparent; border:1px dashed var(--line); color:var(--muted); font-weight:600; font-size:12px; cursor:default; }
+.dim{ opacity:.6; }
 footer{ font-size:13px; color:var(--muted); line-height:1.5; }
 footer a{ color:inherit; }
 @media (prefers-reduced-motion: reduce){ summary svg{ transition:none; } }
@@ -194,7 +201,7 @@ const REGION_X = { Bizkaia:240, Gipuzkoa:720, Lapurdi:1010 };
 /* ---------- Textos ---------- */
 const T = {
   es: {
-    surfNow:'Surf ahora', surfAt:h=>`Surf a las ${h}`, now:'Ahora',
+    surfNow:'Surf ahora', surfAt:(h,d)=>d?`Surf el ${d} a las ${h}`:`Surf a las ${h}`, now:'Ahora',
     levels:['Malo','Flojo','Aceptable','Bueno'], flat:'Plato', big:'Demasiado grande',
     why:'¿Por qué este color?', height:'Altura del swell', period:'Periodo', swellDir:'Dirección del swell',
     wind:'Viento', tide:'Marea', water:'Agua', hRow:'Altura', pRow:'Periodo', wRow:'Viento', total:'Total',
@@ -209,6 +216,8 @@ const T = {
     install:'Instalar Olatuak', installTitleIos:'Para instalarla en el iPhone:', installTitleOther:'Para instalarla:', gotIt:'Entendido',
     iosSteps:['Toca el botón Compartir {share} en la barra del navegador.', 'Elige «Añadir a pantalla de inicio».', 'Toca «Añadir».'],
     otherSteps:['Abre el menú del navegador (⋮ o ☰).', 'Elige «Instalar aplicación» o «Añadir a pantalla de inicio».'],
+    hoursT:'Horas', daysT:'Días', nextDays:'Próximos días', today:'Hoy', franjas:['Mañana','Mediodía','Tarde'], past:'Pasado',
+    daysNote:'Cada franja muestra el color de su mejor hora; tócala para ver ese momento.', day3Note:'El último día es menos preciso.',
     scale:'Escala', swellT:'Swell', gusts:'rachas', maxGust:'Racha máxima (24 h)',
     windLegend:'Línea continua: viento medio. Discontinua: rachas.',
     windNote:'La flecha indica hacia dónde sopla; en verde, offshore (del sur). El número pequeño son las rachas.',
@@ -232,12 +241,12 @@ const T = {
     noData:'Sin datos de oleaje para esta hora.',
     langLabel:'Idioma', viewList:'Ver lista', viewMap:'Ver mapa', beaches:'Playas', beachCount:n=>`${n} playas`,
     all:'Todas', favs:'Favoritas', filterLabel:'Filtrar por zona', order:'Orden', coast:'Costa', best:'Mejores',
-    forTime:h=>`Condiciones a las ${h}`,
+    forTime:(h,d)=>d?`Condiciones del ${d} a las ${h}`:`Condiciones a las ${h}`,
     swipe:'Desliza para ver toda la costa. Toca un punto para abrir la playa.',
     noFavs:'Aún no tienes favoritas. Abre una playa y toca la estrella.'
   },
   eu: {
-    surfNow:'Surfa orain', surfAt:h=>`Surfa ${h}etan`, now:'Orain',
+    surfNow:'Surfa orain', surfAt:(h,d)=>d?`Surfa: ${d}, ${h}`:`Surfa ${h}etan`, now:'Orain',
     levels:['Txarra','Ahula','Onargarria','Ona'], flat:'Itsasoa laua', big:'Handiegia',
     why:'Zergatik kolore hau?', height:'Swell-aren altuera', period:'Periodoa', swellDir:'Swell-aren norabidea',
     wind:'Haizea', tide:'Marea', water:'Ura', hRow:'Altuera', pRow:'Periodoa', wRow:'Haizea', total:'Guztira',
@@ -252,6 +261,8 @@ const T = {
     install:'Instalatu Olatuak', installTitleIos:'iPhonean instalatzeko:', installTitleOther:'Instalatzeko:', gotIt:'Ados',
     iosSteps:['Sakatu nabigatzailearen barrako Partekatu botoia {share} (Compartir).', 'Aukeratu «Añadir a pantalla de inicio».', 'Sakatu «Añadir».'],
     otherSteps:['Ireki nabigatzailearen menua (⋮ edo ☰).', 'Aukeratu «Instalatu aplikazioa» edo «Gehitu hasierako pantailan».'],
+    hoursT:'Orduak', daysT:'Egunak', nextDays:'Hurrengo egunak', today:'Gaur', franjas:['Goiza','Eguerdia','Arratsaldea'], past:'Igarota',
+    daysNote:'Tarte bakoitzak bere ordurik onenaren kolorea du; sakatu une hori ikusteko.', day3Note:'Azken eguna ez da hain zehatza.',
     scale:'Eskala', swellT:'Swell-a', gusts:'boladak', maxGust:'Bolada handiena (24 h)',
     windLegend:'Lerro jarraitua: batez besteko haizea. Etena: boladak.',
     windNote:'Geziak haizea nora doan adierazten du; berdez, lehorrekoa (hegotik). Zenbaki txikia boladak dira.',
@@ -275,7 +286,7 @@ const T = {
     noData:'Ez dago olatu-daturik ordu honetarako.',
     langLabel:'Hizkuntza', viewList:'Zerrenda ikusi', viewMap:'Mapa ikusi', beaches:'Hondartzak', beachCount:n=>`${n} hondartza`,
     all:'Denak', favs:'Gogokoak', filterLabel:'Eremuaren arabera iragazi', order:'Ordena', coast:'Kosta', best:'Onenak',
-    forTime:h=>`Baldintzak ${h}etan`,
+    forTime:(h,d)=>d?`Baldintzak: ${d}, ${h}`:`Baldintzak ${h}etan`,
     swipe:'Irristatu kosta osoa ikusteko. Sakatu puntu bat hondartza irekitzeko.',
     noFavs:'Oraindik ez duzu gogokorik. Ireki hondartza bat eta sakatu izarra.'
   }
@@ -299,6 +310,7 @@ const S = {
   view: 'beach',
   filter: store.get('filter', 'all'),
   order: store.get('order', 'coast'),
+  fview: store.get('fview', 'hours'),
   selT: null,
   loading: true,
   data: null,
@@ -322,6 +334,12 @@ const dirIdx = deg => Math.round(((deg % 360) + 360) % 360 / 45) % 8;
 const COLORS = ['var(--red)','var(--orange)','var(--yellow)','var(--green)'];
 const BAR_H = [14, 26, 38, 50];
 const at = (arr, j) => (arr && arr[j] != null) ? arr[j] : null;
+function dayName(date, cap){
+  let s = date;
+  try { s = new Intl.DateTimeFormat(S.lang === 'eu' ? 'eu' : 'es-ES', { weekday:'long', timeZone:'UTC' }).format(new Date(date + 'T12:00:00Z')); } catch (e) {}
+  return cap ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+const whenParts = tt => ({ h: tt.slice(11, 16), d: tt.slice(0, 10) === nowKey().slice(0, 10) ? '' : dayName(tt.slice(0, 10), false) });
 
 /* ---------- Calculo del semaforo ---------- */
 function score(x){
@@ -361,7 +379,7 @@ async function batch(base, vars, list, latList){
   const lat = (latList || list.map(b => b.lat)).join(',');
   const lon = list.map(b => b.lon).join(',');
   const extra = base === FORECAST ? '&wind_speed_unit=kmh' : '';
-  const j = await getJSON(`${base}?latitude=${lat}&longitude=${lon}&hourly=${vars}&timezone=${encodeURIComponent(TZ)}&forecast_days=2${extra}`);
+  const j = await getJSON(`${base}?latitude=${lat}&longitude=${lon}&hourly=${vars}&timezone=${encodeURIComponent(TZ)}&forecast_days=3${extra}`);
   return Array.isArray(j) ? j : [j];
 }
 const hasWaves = o => !!(o && o.hourly && o.hourly.wave_height && o.hourly.wave_height.some(v => v != null));
@@ -419,13 +437,15 @@ function demoAll(){
   const day = nowKey().slice(0, 10);
   const d2 = new Date(day + 'T12:00:00Z'); d2.setUTCDate(d2.getUTCDate() + 1);
   const next = d2.toISOString().slice(0, 10);
+  d2.setUTCDate(d2.getUTCDate() + 1);
+  const next2 = d2.toISOString().slice(0, 10);
   const out = {};
   BEACHES.forEach((b, n) => {
     const s = n * 3, arr = [];
-    for (let j = 0; j < 48; j++){
+    for (let j = 0; j < 72; j++){
       const hr = j % 24;
       arr.push({
-        t: `${j < 24 ? day : next}T${String(hr).padStart(2,'0')}:00`,
+        t: `${j < 24 ? day : j < 48 ? next : next2}T${String(hr).padStart(2,'0')}:00`,
         h: Math.round((1.0 + 0.7 * Math.sin((j + s) / 7)) * 10) / 10,
         p: Math.round(9.5 + 3 * Math.sin((j + s) / 9)),
         d: 315, ws: Math.round(6 + 14 * Math.max(0, Math.sin((hr - 11 + n % 3) / 4))),
@@ -510,7 +530,7 @@ function filters(t){
 }
 function timebar(t){
   if (!S.selT) return '';
-  return `<div class="timebar"><span>${t.forTime(S.selT.slice(11, 16))}</span><button type="button" class="now" data-action="now">${t.now}</button></div>`;
+  return `<div class="timebar"><span>${t.forTime(whenParts(S.selT).h, whenParts(S.selT).d)}</span><button type="button" class="now" data-action="now">${t.now}</button></div>`;
 }
 
 /* ---------- Render: ficha de playa ---------- */
@@ -564,8 +584,8 @@ function lineChart(hours, from, cur, series, opt){
   const scale = opt.fmt ? `<text x="338" y="${Y(mx) + 4}" text-anchor="end" class="tlabel">${opt.fmt(mx)}</text><text x="338" y="${Y(mn) + 4}" text-anchor="end" class="tlabel">${opt.fmt(mn)}</text>` : '';
   return `<svg viewBox="0 0 340 142" width="100%" role="img" aria-label="${opt.label || ''}">
     ${paths}
-    <line x1="${X(0)}" y1="12" x2="${X(0)}" y2="120" stroke="var(--muted)" stroke-dasharray="3 3"/>
-    ${nowV != null ? `<circle cx="${X(0)}" cy="${Y(nowV)}" r="5" fill="${main.stroke}"/>` : ''}
+    ${S.panelNow !== false ? `<line x1="${X(0)}" y1="12" x2="${X(0)}" y2="120" stroke="var(--muted)" stroke-dasharray="3 3"/>
+    ${nowV != null ? `<circle cx="${X(0)}" cy="${Y(nowV)}" r="5" fill="${main.stroke}"/>` : ''}` : ''}
     ${selV != null ? `<circle cx="${X(selK)}" cy="${Y(selV)}" r="6" fill="var(--text)" stroke="var(--surface)" stroke-width="2"/>` : ''}
     ${labels}${scale}
   </svg>`;
@@ -640,6 +660,33 @@ function weatherView(t, hours, from, cur){
     <h3 class="kicker">${t.tideHourly}</h3>${cells}<p class="note">${t.weatherNote}</p>`, t);
 }
 
+const FRANJAS = [[7, 10], [11, 14], [15, 19]];
+function daysGrid(t, hours, cur){
+  if (!hours.length) return '';
+  const nowK = nowKey(), dates = [...new Set(hours.map(x => x.t.slice(0, 10)))].slice(0, 3);
+  const head = `<div></div>${t.franjas.map(f => `<div class="dhead">${f}</div>`).join('')}`;
+  const rows = dates.map((date, di) => {
+    const lbl = di === 0 ? t.today : dayName(date, true);
+    const dim = di === 2 ? ' dim' : '';
+    const cells = FRANJAS.map(([a, b]) => {
+      let best = null;
+      for (let hh = a; hh <= b; hh++){
+        const key = `${date}T${String(hh).padStart(2, '0')}:00`;
+        if (key < nowK) continue;
+        const x = hours.find(y => y.t === key);
+        if (!x) continue;
+        const sc = score(x), rank = sc ? sc.level * 100 + Math.max(0, sc.total) : -1;
+        if (!best || rank > best.rank) best = { x, sc, rank };
+      }
+      if (!best) return `<div class="dcell past${dim}">${t.past}</div>`;
+      const lv = best.sc ? best.sc.level : -1;
+      return `<button type="button" class="dcell${dim}" data-action="hour" data-t="${best.x.t}" aria-pressed="${!!cur && best.x.t === cur.t}" style="background:${lv < 0 ? 'var(--empty)' : COLORS[lv]}"><span>${best.x.t.slice(11, 13)}h</span><span class="sr"> ${lbl}: ${levelLabel(best.sc, t)}</span></button>`;
+    }).join('');
+    return `<div class="dlabel${dim}">${lbl}</div>${cells}`;
+  }).join('');
+  return `<div class="days">${head}${rows}</div><p class="note">${t.daysNote}${dates.length > 2 ? ' ' + t.day3Note : ''}</p>`;
+}
+
 function beachView(t){
   const b = byId(S.sel);
   const hours = hoursOf(S.sel);
@@ -686,7 +733,12 @@ function beachView(t){
     ? `<button type="button" class="tile tilebtn wide" data-action="panel" data-panel="weather" aria-expanded="${S.panel === 'weather'}">${I.chevSm}${wxIcon(cur && cur.wc, cur && cur.dy, 40)}<div class="wxmain"><span class="lbl">${t.weather}</span><span class="val">${fmt(cur && cur.ta, 0)} °C</span>${wxSub ? `<small class="tsub">${wxSub}</small>` : ''}</div></button>`
     : '';
 
-  const from = Math.max(0, i0);
+  let from = Math.max(0, i0);
+  if (cur && hours[from] && cur.t.slice(0, 10) !== hours[from].t.slice(0, 10)){
+    const j = hours.findIndex(x => x.t === cur.t.slice(0, 10) + 'T06:00');
+    if (j > from) from = j;
+  }
+  S.panelNow = from === Math.max(0, i0);
   let panel = '';
   if (S.panel && has[S.panel]){
     panel = S.panel === 'swell' ? swellView(t, hours, from, cur)
@@ -709,7 +761,7 @@ function beachView(t){
     <section class="card" aria-label="${t.surfNow}">
       <div class="hero-row">
         <div class="light" style="background:${color};box-shadow:0 0 0 6px color-mix(in srgb, ${color} 24%, transparent)"></div>
-        <div><p class="kicker">${notNow ? t.surfAt(cur.t.slice(11,16)) : t.surfNow}</p><div class="level">${label}</div></div>
+        <div><p class="kicker">${notNow ? t.surfAt(whenParts(cur.t).h, whenParts(cur.t).d) : t.surfNow}</p><div class="level">${label}</div></div>
         ${notNow ? `<button type="button" class="now" data-action="now">${t.now}</button>` : ''}
       </div>
       <p class="summary">${summary}</p>
@@ -726,9 +778,13 @@ function beachView(t){
     </section>
     ${panel}
     <section class="card">
-      <h2 class="kicker">${t.next}</h2>
-      <div class="bars">${bars}</div>
-      <p class="note">${bestLvl > 0 ? t.bestHour(bestT) : t.none} ${t.barsNote}</p>
+      <div class="panelhead"><h2 class="kicker" style="font-size:14px;font-weight:600">${S.fview === 'days' ? t.nextDays : t.next}</h2>
+        <div class="seg" role="group" aria-label="${t.next}">
+          <button type="button" data-action="fview" data-fview="hours" aria-pressed="${S.fview !== 'days'}">${t.hoursT}</button>
+          <button type="button" data-action="fview" data-fview="days" aria-pressed="${S.fview === 'days'}">${t.daysT}</button>
+        </div></div>
+      ${S.fview === 'days' ? daysGrid(t, hours, cur) : `<div class="bars">${bars}</div>
+      <p class="note">${bestLvl > 0 ? t.bestHour(bestT) : t.none} ${t.barsNote}</p>`}
     </section>
     ${b.cam ? `<a class="cam" href="${b.cam}" target="_blank" rel="noopener">${I.cam}${t.cam}</a>` : ''}`;
 }
@@ -895,6 +951,7 @@ app.addEventListener('click', e => {
   }
   if (a === 'hour'){ const i0 = idxNow(hoursOf(S.sel)); const nowT = i0 >= 0 ? hoursOf(S.sel)[i0].t : null; S.selT = el.dataset.t === nowT ? null : el.dataset.t; }
   if (a === 'panel'){ const p = el.dataset.panel; S.panel = S.panel === p ? null : p; S.panelScroll = !!S.panel; }
+  if (a === 'fview'){ S.fview = el.dataset.fview; store.set('fview', S.fview); }
   if (a === 'now') S.selT = null;
   if (a === 'install'){
     if (deferredPrompt){
